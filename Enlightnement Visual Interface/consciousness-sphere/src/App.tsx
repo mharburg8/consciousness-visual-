@@ -60,8 +60,8 @@ function App() {
           <DepthIndicator />
           {/* Dissolve current layer button */}
           <NextLayerButton />
-          {/* Bottom-center layer jump nav */}
-          {!isPanelOpen && <LayerNav getCameraRef={() => null} />}
+          {/* Bottom-center layer jump nav — always visible */}
+          <LayerNav getCameraRef={() => null} />
         </>
       )}
 

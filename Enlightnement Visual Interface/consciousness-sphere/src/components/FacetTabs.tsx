@@ -10,10 +10,10 @@ const TABS: { key: FacetKey; label: string; short: string }[] = [
 ];
 
 interface Props {
-  layerColor: string;
+  layerColor?: string;
 }
 
-export default function FacetTabs({ layerColor }: Props) {
+export default function FacetTabs({ layerColor = '#c9a87c' }: Props) {
   const activeFacet   = useExplorerStore((s) => s.activeFacet);
   const setActiveFacet = useExplorerStore((s) => s.setActiveFacet);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);

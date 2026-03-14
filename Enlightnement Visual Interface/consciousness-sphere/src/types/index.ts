@@ -41,4 +41,7 @@ export interface ExplorerStore {
   setCameraDepthLayer: (id: number | null) => void;
   dissolveLayer: (id: number) => void;
   resetDissolved: () => void;
+  cameraResetPending: boolean;
+  requestCameraReset: () => void;
+  clearCameraReset: () => void;
 }

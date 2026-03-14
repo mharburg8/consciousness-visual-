@@ -1,25 +1,30 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import useExplorerStore from '../stores/useExplorerStore';
 import { layers } from '../data/layers';
+import { useBreakpoint } from '../hooks/useBreakpoint';
 
-const SORTED = [...layers].sort((a, b) => b.radius - a.radius);
+const PANEL_WIDTH  = 420;
+const SORTED       = [...layers].sort((a, b) => b.radius - a.radius);
 
 export default function NextLayerButton() {
-  const dissolvedLayers = useExplorerStore((s) => s.dissolvedLayers);
-  const dissolveLayer   = useExplorerStore((s) => s.dissolveLayer);
-  const resetDissolved  = useExplorerStore((s) => s.resetDissolved);
-  const selectedLayer   = useExplorerStore((s) => s.selectedLayer);
+  const dissolvedLayers    = useExplorerStore((s) => s.dissolvedLayers);
+  const dissolveLayer      = useExplorerStore((s) => s.dissolveLayer);
+  const resetDissolved     = useExplorerStore((s) => s.resetDissolved);
+  const selectedLayer      = useExplorerStore((s) => s.selectedLayer);
+  const selectLayer        = useExplorerStore((s) => s.selectLayer);
+  const requestCameraReset = useExplorerStore((s) => s.requestCameraReset);
+  const bp                 = useBreakpoint();
 
-  // Active = outermost undissolved
-  const active = SORTED.find((l) => !dissolvedLayers.includes(l.id)) ?? null;
-  // Next = one layer in from active
+  // Active = outermost undissolved layer
+  const active    = SORTED.find((l) => !dissolvedLayers.includes(l.id)) ?? null;
   const activeIdx = active ? SORTED.findIndex((l) => l.id === active.id) : -1;
   const next      = SORTED[activeIdx + 1] ?? null;
 
-  // Don't show when panel is open
-  if (selectedLayer !== null) return null;
-
   const allDissolved = dissolvedLayers.length >= SORTED.length;
+
+  // On desktop, shift center left to stay in the scene area when panel is open
+  const isPanelOpen = selectedLayer !== null;
+  const leftOffset  = bp === 'desktop' && isPanelOpen ? -(PANEL_WIDTH / 2) : 0;
 
   return (
     <AnimatePresence mode="wait">
@@ -31,8 +36,8 @@ export default function NextLayerButton() {
         transition={{ duration: 0.4, ease: [0.2, 0, 0.1, 1] }}
         style={{
           position: 'fixed',
-          bottom: '5.5rem', // above LayerNav
-          left: '50%',
+          bottom: '5.5rem',
+          left: `calc(50% + ${leftOffset}px)`,
           transform: 'translateX(-50%)',
           zIndex: 34,
           display: 'flex',
@@ -40,12 +45,16 @@ export default function NextLayerButton() {
           alignItems: 'center',
           gap: '0.35rem',
           pointerEvents: 'all',
+          transition: 'left 0.5s cubic-bezier(0.32, 0.72, 0, 1)',
         }}
       >
         {allDissolved ? (
-          // Show reset when everything dissolved (at the center)
           <motion.button
-            onClick={resetDissolved}
+            onClick={() => {
+              resetDissolved();
+              selectLayer(null);
+              requestCameraReset();
+            }}
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.96 }}
             style={{
@@ -66,7 +75,6 @@ export default function NextLayerButton() {
           </motion.button>
         ) : (
           <>
-            {/* Next layer name hint */}
             {next && (
               <p style={{
                 fontFamily: 'Cormorant Garamond, Georgia, serif',
@@ -76,6 +84,7 @@ export default function NextLayerButton() {
                 letterSpacing: '0.06em',
                 textAlign: 'center',
                 pointerEvents: 'none',
+                margin: 0,
               }}>
                 {next.name.includes(':') ? next.name.split(':')[1].trim() : next.name} awaits
               </p>
@@ -112,7 +121,6 @@ export default function NextLayerButton() {
               }}>
                 Dissolve this Layer
               </span>
-              {/* Wind arrow */}
               <svg width="14" height="10" viewBox="0 0 14 10" fill="none">
                 <path
                   d="M1 5H11M8 1L13 5L8 9"

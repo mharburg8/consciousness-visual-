@@ -1,8 +1,8 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import useExplorerStore from '../stores/useExplorerStore';
 import { layers } from '../data/layers';
-import { DEFAULT_CAMERA_POSITION } from './Scene';
+import { useBreakpoint } from '../hooks/useBreakpoint';
 import * as THREE from 'three';
 
 // Sorted outermost → innermost for display
@@ -13,24 +13,31 @@ interface Props {
   getCameraRef: () => { camera: THREE.Camera; controls: { target: THREE.Vector3; update: () => void } } | null;
 }
 
-export default function LayerNav({ getCameraRef }: Props) {
+const PANEL_WIDTH = 420;
+
+export default function LayerNav({ getCameraRef: _getCameraRef }: Props) {
   const [open, setOpen] = useState(false);
-  const selectedLayer   = useExplorerStore((s) => s.selectedLayer);
-  const selectLayer     = useExplorerStore((s) => s.selectLayer);
+  const selectedLayer    = useExplorerStore((s) => s.selectedLayer);
+  const selectLayer      = useExplorerStore((s) => s.selectLayer);
   const cameraDepthLayer = useExplorerStore((s) => s.cameraDepthLayer);
+  const bp               = useBreakpoint();
 
   const handleSelect = (layerId: number) => {
     selectLayer(layerId);
     setOpen(false);
   };
 
+  const isPanelOpen = selectedLayer !== null;
+  const leftOffset  = bp === 'desktop' && isPanelOpen ? -(PANEL_WIDTH / 2) : 0;
+
   return (
     <div
       style={{
         position: 'fixed',
         bottom: '1.5rem',
-        left: '50%',
+        left: `calc(50% + ${leftOffset}px)`,
         transform: 'translateX(-50%)',
+        transition: 'left 0.5s cubic-bezier(0.32, 0.72, 0, 1)',
         zIndex: 35,
         display: 'flex',
         flexDirection: 'column',

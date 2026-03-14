@@ -49,6 +49,9 @@ const useExplorerStore = create<ExplorerStore>()(
           : [...state.dissolvedLayers, id],
       })),
       resetDissolved: () => set({ dissolvedLayers: [] }),
+      cameraResetPending: false,
+      requestCameraReset: () => set({ cameraResetPending: true }),
+      clearCameraReset:   () => set({ cameraResetPending: false }),
     }),
     {
       name: STORAGE_KEY,

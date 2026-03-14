@@ -27,18 +27,45 @@ function SceneLoader() {
   );
 }
 
-/** Tracks camera depth and triggers dissolution when camera enters a sphere */
-function CameraTracker() {
+interface CameraTrackerProps {
+  controlsRef: React.RefObject<OrbitControlsImpl | null>;
+}
+
+/** Tracks camera depth, triggers dissolution, and handles camera-reset animation */
+function CameraTracker({ controlsRef }: CameraTrackerProps) {
   const { camera } = useThree();
   const setCameraDepthLayer = useExplorerStore((s) => s.setCameraDepthLayer);
   const dissolveLayer       = useExplorerStore((s) => s.dissolveLayer);
   const dissolvedLayers     = useExplorerStore((s) => s.dissolvedLayers);
+  const cameraResetPending  = useExplorerStore((s) => s.cameraResetPending);
+  const clearCameraReset    = useExplorerStore((s) => s.clearCameraReset);
   const prevLayerRef        = useRef<number | null>(null);
+  const resetTarget         = useRef(new THREE.Vector3(...DEFAULT_CAMERA_POSITION));
+  const zeroVec             = useRef(new THREE.Vector3(0, 0, 0));
 
   // Sorted layers for active detection
   const sortedLayers = [...layers].sort((a, b) => b.radius - a.radius);
 
   useFrame(() => {
+    // ── Camera reset animation ───────────────────────────────────────────
+    if (cameraResetPending) {
+      camera.position.lerp(resetTarget.current, 0.06);
+      if (controlsRef.current) {
+        controlsRef.current.target.lerp(zeroVec.current, 0.06);
+        controlsRef.current.update();
+      }
+      if (camera.position.distanceTo(resetTarget.current) < 0.15) {
+        camera.position.copy(resetTarget.current);
+        if (controlsRef.current) {
+          controlsRef.current.target.copy(zeroVec.current);
+          controlsRef.current.update();
+        }
+        clearCameraReset();
+      }
+      return; // skip depth tracking while animating
+    }
+
+    // ── Depth tracking ───────────────────────────────────────────────────
     const dist = camera.position.length();
     let current: number | null = null;
 
@@ -51,8 +78,7 @@ function CameraTracker() {
       setCameraDepthLayer(current);
     }
 
-    // Auto-dissolve: when camera enters a sphere to within 60% of its radius,
-    // dissolve it if it's the active (outermost undissolved) layer
+    // Auto-dissolve: when camera enters a sphere to within 55% of its radius
     const activeLayer = sortedLayers.find(
       (l) => !dissolvedLayers.includes(l.id)
     );
@@ -182,7 +208,7 @@ export default function Scene() {
             zoomSpeed={0.7}     // slower zoom = more contemplative journey
           />
 
-          <CameraTracker />
+          <CameraTracker controlsRef={controlsRef} />
           <KeyboardControls controlsRef={controlsRef} />
 
           <Suspense fallback={<SceneLoader />}>
