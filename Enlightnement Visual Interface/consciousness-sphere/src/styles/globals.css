@@ -1,0 +1,103 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300;1,9..40,400&display=swap');
+
+:root {
+  /* Backgrounds */
+  --bg-primary: #0a0e1a;
+  --bg-panel: rgba(10, 14, 26, 0.8);
+  --bg-panel-border: rgba(255, 255, 255, 0.08);
+
+  /* Text */
+  --text-primary: #e8e4df;
+  --text-secondary: #9b95a0;
+  --text-muted: #817b8c;  /* lightened for WCAG AA 4.5:1 against panel bg */
+
+  /* Accents */
+  --accent-warm: #c9a87c;
+  --accent-glow: #f0e6d3;
+
+  /* Sphere layers (outermost → innermost) */
+  --layer-7: #4a1a2a;    /* Deep crimson-black — 3rd Dimension */
+  --layer-6: #8b6914;    /* Warm amber/bronze — 4th Dimension */
+  --layer-5: #1a5c4a;    /* Deep teal/emerald — New Humanity */
+  --layer-4: #b8943c;    /* Luminous gold — 5th Dimension */
+  --layer-3: #7a8fa8;    /* Pale silver-blue — I AM Presence */
+  --layer-2: #b8a8c8;    /* Faint lavender — Enlightenment */
+  --layer-1: #e8dcc8;    /* Barely-there warm white — 12th Dimension */
+  --center: #fff8e8;     /* Radiant white-gold — Pure Awareness */
+
+  /* Threshold */
+  --threshold-glow: #d4a04a;  /* FEAR ↔ LOVE boundary */
+
+  /* Typography */
+  --font-heading: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+}
+
+/* Base reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Glassmorphism panel */
+.glass-panel {
+  background: var(--bg-panel);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--bg-panel-border);
+  border-radius: 16px;
+}
+
+/* Glow effects */
+.glow-center {
+  box-shadow:
+    0 0 20px rgba(255, 248, 232, 0.4),
+    0 0 60px rgba(255, 248, 232, 0.15),
+    0 0 120px rgba(255, 248, 232, 0.05);
+}
+
+.glow-threshold {
+  box-shadow:
+    0 0 12px rgba(212, 160, 74, 0.6),
+    0 0 32px rgba(212, 160, 74, 0.2);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: 2px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

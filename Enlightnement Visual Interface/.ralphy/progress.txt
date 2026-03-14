@@ -1,0 +1,378 @@
+# Ralphy Progress Log
+
+## 2026-03-13 — Scaffold Vite React TypeScript project
+
+- Scaffolded `./consciousness-sphere/` using `npm create vite@5 consciousness-sphere -- --template react-ts`
+  (create-vite@5 used because Node v20.10.0 is incompatible with create-vite@9+)
+- Installed npm dependencies
+- Added Vitest 2.x test setup (vitest@2, jsdom@24, @testing-library/react, @testing-library/jest-dom)
+- Configured vitest in vite.config.ts with jsdom environment
+- Added `src/test-setup.ts` with @testing-library/jest-dom imports
+- Added `src/App.test.tsx` with 2 smoke tests verifying render
+- Added `test` script to package.json: `vitest run`
+- All checks pass: tests (2/2), lint (clean), build (successful)
+
+## 2026-03-13 — Install runtime dependencies
+
+- Installed runtime deps: `three@^0.183`, `@react-three/fiber@^8.18`, `@react-three/drei@^9.122`,
+  `@react-three/postprocessing@^2.19`, `zustand@^5`, `framer-motion@^12`, `gsap@^3.14`
+  (fiber@8/drei@9/postprocessing@2 pinned for React 18 compatibility — fiber@9 requires React 19)
+- Installed dev dep: `@types/three` for TypeScript support
+- Added `src/deps.test.ts` with 7 import smoke tests covering all new packages
+- All checks pass: tests (9/9), lint (clean)
+
+## 2026-03-13 — Verified scaffold task complete
+
+- Confirmed `./consciousness-sphere/` is a valid Vite React TypeScript project (react-ts template)
+- All runtime deps present: three, @react-three/fiber, @react-three/drei, @react-three/postprocessing,
+  zustand, framer-motion, gsap
+- Tests: 9/9 pass (App render tests + dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+- Build artifacts present in `dist/`
+
+## 2026-03-13 — Re-verified scaffold (agent-13-pp4bu5)
+
+- Read claude.md and docs/plans/2026-03-13-consciousness-sphere-architecture.md before proceeding
+- Confirmed project structure matches architecture plan (TypeScript, all deps installed)
+- Re-ran test suite: 9/9 pass (2 App render tests + 7 dependency import tests)
+- Re-ran lint: clean
+- Scaffold task is complete and verified
+
+## 2026-03-13 — Re-verified runtime dependencies (agent-14-nzip1j)
+
+- Confirmed all runtime deps already installed: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- node_modules verified present for all packages
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified scaffold (agent-15-wicpcr)
+
+- Read claude.md and docs/plans/2026-03-13-consciousness-sphere-architecture.md before proceeding
+- Confirmed `./consciousness-sphere/` is already correctly scaffolded as Vite React TypeScript project
+- All runtime deps present: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified runtime dependencies (agent-16-hofbgp)
+
+- Confirmed all runtime deps already installed: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified scaffold (agent-17-azhesz)
+
+- Read claude.md and docs/plans/2026-03-13-consciousness-sphere-architecture.md before proceeding
+- Confirmed `./consciousness-sphere/` is already correctly scaffolded as Vite React TypeScript project (react-ts template)
+- All runtime deps present: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified runtime dependencies (agent-18-h85bbh)
+
+- Confirmed all runtime deps already installed: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- node_modules verified present for all packages (@react-three/drei, @react-three/fiber, @react-three/postprocessing,
+  framer-motion, gsap, three, zustand)
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified scaffold (agent-19-eg00rr)
+
+- Read claude.md and docs/plans/2026-03-13-consciousness-sphere-architecture.md before proceeding
+- Confirmed `./consciousness-sphere/` is already correctly scaffolded as Vite React TypeScript project (react-ts template)
+- All runtime deps present: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified runtime dependencies (agent-20-wf46h7)
+
+- Confirmed all runtime deps already installed: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- node_modules verified present for all packages
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified scaffold (agent-21-gnk6n7)
+
+- Read claude.md and docs/plans/2026-03-13-consciousness-sphere-architecture.md before proceeding
+- Confirmed `./consciousness-sphere/` is already correctly scaffolded as Vite React TypeScript project (react-ts template)
+- All runtime deps present: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified runtime dependencies (agent-22-gpo6c1)
+
+- Confirmed all runtime deps already installed: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- node_modules verified present for all packages (three, @react-three/fiber, @react-three/drei,
+  @react-three/postprocessing, framer-motion, gsap, zustand)
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified scaffold (agent-23-rqyoxl)
+
+- Read claude.md and docs/plans/2026-03-13-consciousness-sphere-architecture.md before proceeding
+- Confirmed `./consciousness-sphere/` is already correctly scaffolded as Vite React TypeScript project (react-ts template)
+- All runtime deps present: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified runtime dependencies (agent-24-2sg6le)
+
+- Confirmed all runtime deps already installed: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- node_modules verified present for all packages
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified scaffold (agent-25-cj8hlj)
+
+- Read claude.md and docs/plans/2026-03-13-consciousness-sphere-architecture.md before proceeding
+- Confirmed `./consciousness-sphere/` is already correctly scaffolded as Vite React TypeScript project (react-ts template)
+- All runtime deps present: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified runtime dependencies (agent-26-39p5yk)
+
+- Confirmed all runtime deps already installed: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- node_modules verified present for all packages (three, @react-three/fiber, @react-three/drei,
+  @react-three/postprocessing, framer-motion, gsap, zustand)
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified scaffold (agent-27-hsq4dz)
+
+- Read claude.md and docs/plans/2026-03-13-consciousness-sphere-architecture.md before proceeding
+- Confirmed `./consciousness-sphere/` is already correctly scaffolded as Vite React TypeScript project (react-ts template)
+- All runtime deps present: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified runtime dependencies (agent-28-7am0vi)
+
+- Confirmed all runtime deps already installed: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- node_modules verified present for all packages (three, @react-three/fiber, @react-three/drei,
+  @react-three/postprocessing, framer-motion, gsap, zustand)
+- Existing deps.test.ts covers 7 import smoke tests — all pass
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified scaffold (agent-29-0x37eg)
+
+- Read claude.md and docs/plans/2026-03-13-consciousness-sphere-architecture.md before proceeding
+- Confirmed `./consciousness-sphere/` is already correctly scaffolded as Vite React TypeScript project (react-ts template)
+- All runtime deps present: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified runtime dependencies (agent-30-y09pgc)
+
+- Confirmed all runtime deps already installed: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- node_modules verified present for all packages (three, @react-three/fiber, @react-three/drei,
+  @react-three/postprocessing, framer-motion, gsap, zustand)
+- Existing deps.test.ts covers 7 import smoke tests — all pass
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified scaffold (agent-31-2uysej)
+
+- Read claude.md and docs/plans/2026-03-13-consciousness-sphere-architecture.md before proceeding
+- Confirmed `./consciousness-sphere/` is already correctly scaffolded as Vite React TypeScript project (react-ts template)
+- All runtime deps present: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified runtime dependencies (agent-32-6cwm8c)
+
+- Confirmed all runtime deps already installed: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- node_modules verified present for all packages (three, @react-three/fiber, @react-three/drei,
+  @react-three/postprocessing, framer-motion, gsap, zustand)
+- Existing deps.test.ts covers 7 import smoke tests — all pass
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified scaffold (agent-33-o2tai4)
+
+- Read claude.md and docs/plans/2026-03-13-consciousness-sphere-architecture.md before proceeding
+- Confirmed `./consciousness-sphere/` is already correctly scaffolded as Vite React TypeScript project (react-ts template)
+- All runtime deps present: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified runtime dependencies (agent-34-ilq0ed)
+
+- Confirmed all runtime deps already installed: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- node_modules verified present for all packages (three, @react-three/fiber, @react-three/drei,
+  @react-three/postprocessing, framer-motion, gsap, zustand)
+- Existing deps.test.ts covers 7 import smoke tests — all pass
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified scaffold (agent-35-38rr2n)
+
+- Read claude.md and docs/plans/2026-03-13-consciousness-sphere-architecture.md before proceeding
+- Confirmed `./consciousness-sphere/` is already correctly scaffolded as Vite React TypeScript project (react-ts template)
+- All runtime deps present: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified runtime dependencies (agent-36-jc84f2)
+
+- Confirmed all runtime deps already installed: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- node_modules verified present for all packages (three, @react-three/fiber, @react-three/drei,
+  @react-three/postprocessing, framer-motion, gsap, zustand)
+- Existing deps.test.ts covers 7 import smoke tests — all pass
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified scaffold (agent-37-sx1p70)
+
+- Read claude.md and docs/plans/2026-03-13-consciousness-sphere-architecture.md before proceeding
+- Confirmed `./consciousness-sphere/` is already correctly scaffolded as Vite React TypeScript project (react-ts template)
+- All runtime deps present: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified runtime dependencies (agent-38-qr4sgz)
+
+- Confirmed all runtime deps already installed: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- node_modules verified present for all packages (three, @react-three/fiber, @react-three/drei,
+  @react-three/postprocessing, framer-motion, gsap, zustand)
+- Existing deps.test.ts covers 7 import smoke tests — all pass
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified scaffold (agent-39-etwgop)
+
+- Read claude.md and docs/plans/2026-03-13-consciousness-sphere-architecture.md before proceeding
+- Confirmed `./consciousness-sphere/` is already correctly scaffolded as Vite React TypeScript project (react-ts template)
+- All runtime deps present: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified runtime dependencies (agent-40-gb8ufq)
+
+- Confirmed all runtime deps already installed: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- node_modules verified present for all packages (three, @react-three/fiber, @react-three/drei,
+  @react-three/postprocessing, framer-motion, gsap, zustand)
+- Existing deps.test.ts covers 7 import smoke tests — all pass
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified scaffold (agent-41-95hsqx)
+
+- Read claude.md and docs/plans/2026-03-13-consciousness-sphere-architecture.md before proceeding
+- Confirmed `./consciousness-sphere/` is already correctly scaffolded as Vite React TypeScript project (react-ts template)
+- All runtime deps present: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified runtime dependencies (agent-42-ms8n3o)
+
+- Confirmed all runtime deps already installed: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- node_modules verified present for all packages (three, @react-three/fiber, @react-three/drei,
+  @react-three/postprocessing, framer-motion, gsap, zustand)
+- Existing deps.test.ts covers 7 import smoke tests — all pass
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified scaffold (agent-43-yvtflf)
+
+- Read claude.md and docs/plans/2026-03-13-consciousness-sphere-architecture.md before proceeding
+- Confirmed `./consciousness-sphere/` is already correctly scaffolded as Vite React TypeScript project (react-ts template)
+- All runtime deps present: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified scaffold (agent-45-vptvxr)
+
+- Read claude.md and docs/plans/2026-03-13-consciousness-sphere-architecture.md before proceeding
+- Confirmed `./consciousness-sphere/` is already correctly scaffolded as Vite React TypeScript project (react-ts template)
+- All runtime deps present: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified runtime dependencies (agent-46-azxy9k)
+
+- Confirmed all runtime deps already installed: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- node_modules verified present for all packages (three, @react-three/fiber, @react-three/drei,
+  @react-three/postprocessing, framer-motion, gsap, zustand)
+- Existing deps.test.ts covers 7 import smoke tests — all pass
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified scaffold (agent-47-g0temm)
+
+- Read claude.md and docs/plans/2026-03-13-consciousness-sphere-architecture.md before proceeding
+- Confirmed `./consciousness-sphere/` is already correctly scaffolded as Vite React TypeScript project (react-ts template)
+- All runtime deps present: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified runtime dependencies (agent-48-uhkvtd)
+
+- Confirmed all runtime deps already installed: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- node_modules verified present for all packages (three, @react-three/fiber, @react-three/drei,
+  @react-three/postprocessing, framer-motion, gsap, zustand)
+- Existing deps.test.ts covers 7 import smoke tests — all pass
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified scaffold (agent-49-s7z7r2)
+
+- Read claude.md and docs/plans/2026-03-13-consciousness-sphere-architecture.md before proceeding
+- Confirmed `./consciousness-sphere/` is already correctly scaffolded as Vite React TypeScript project (react-ts template)
+- All runtime deps present: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified runtime dependencies (agent-50-s3hpno)
+
+- Confirmed all runtime deps already installed: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- node_modules verified present for all packages (three, @react-three/fiber, @react-three/drei,
+  @react-three/postprocessing, framer-motion, gsap, zustand)
+- Existing deps.test.ts covers 7 import smoke tests — all pass
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)
+
+## 2026-03-13 — Re-verified scaffold (agent-51-19q5ma)
+
+- Read claude.md and docs/plans/2026-03-13-consciousness-sphere-architecture.md before proceeding
+- Confirmed `./consciousness-sphere/` is already correctly scaffolded as Vite React TypeScript project (react-ts template)
+- All runtime deps present: three@0.183.2, @react-three/fiber@8.18, @react-three/drei@9.122,
+  @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
+- Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
+- Lint: clean (no errors or warnings)

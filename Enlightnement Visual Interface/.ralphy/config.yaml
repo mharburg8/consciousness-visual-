@@ -1,0 +1,29 @@
+project:
+  name: Consciousness Sphere Explorer
+  language: TypeScript
+  framework: Vite + React + Three.js
+  description: >
+    3D interactive visualization of consciousness as concentric translucent
+    spheres. Based on Hawkins Map of Consciousness, reframed as dissolution
+    not ascension. Built with @react-three/fiber, Zustand, Framer Motion, GSAP.
+commands:
+  test: cd consciousness-sphere && npm run test
+  lint: cd consciousness-sphere && npm run lint
+  build: cd consciousness-sphere && npm run build
+rules:
+  - All code must be TypeScript (.tsx/.ts). No .js or .jsx files.
+  - Project must be scaffolded inside ./consciousness-sphere/ subfolder.
+  - Use MeshPhysicalMaterial with transmission for glass sphere effect. Fall
+    back to MeshStandardMaterial with opacity only if performance requires it.
+  - Content in layers.ts must be warm, second-person, contemplative prose. No
+    numerical scores, no hierarchy of worth, no jargon. 3-5 paragraphs per
+    facet.
+  - Always read ./claude.md and
+    ./docs/plans/2026-03-13-consciousness-sphere-architecture.md before making
+    architectural decisions.
+boundaries:
+  never_touch: null
+  never_commit:
+    - consciousness-sphere/node_modules
+    - consciousness-sphere/dist
+    - .ralphy-sandboxes
