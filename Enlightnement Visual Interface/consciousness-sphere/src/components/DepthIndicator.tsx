@@ -32,13 +32,12 @@ export default function DepthIndicator() {
 
   if (!activeLayer) return null;
 
-  // Only the very brightest sphere (layer 1, cream, lum > 0.75) gets dark text.
-  // All others — including Great Void (lum≈0.69) — use white text.
-  const lum         = luminance(activeLayer.hexColor);
-  const useDarkText = lum > 0.75;
-  const textPrimary = useDarkText ? '#0c0c18' : '#f4f0ea';
-  const textDim     = useDarkText ? 'rgba(12,12,24,0.62)' : 'rgba(244,240,234,0.60)';
-  const dividerCol  = useDarkText ? 'rgba(12,12,24,0.18)' : 'rgba(244,240,234,0.16)';
+  // Always white text — the sphere-tinted frosted card provides enough contrast
+  // for all layers, including the lightest (Great Void, Supra-Causal).
+  void luminance; // kept for potential future use
+  const textPrimary = '#f4f0ea';
+  const textDim     = 'rgba(244,240,234,0.62)';
+  const dividerCol  = 'rgba(244,240,234,0.16)';
 
   const colonIdx = activeLayer.name.indexOf(':');
   const dimLabel = colonIdx >= 0 ? activeLayer.name.slice(0, colonIdx).trim() : activeLayer.name;

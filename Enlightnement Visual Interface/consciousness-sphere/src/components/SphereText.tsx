@@ -71,13 +71,12 @@ function buildTexture(layer: Layer): THREE.CanvasTexture {
   const LINE_TITLE = TITLE_SIZE * 1.3;
   const LINE_BODY  = BODY_SIZE  * 1.65;
 
-  const lum           = luminance(layer.hexColor);
-  // Only layers 1 & 2 (lum > 0.65) are truly bright enough to need dark text.
-  // Layer 3 (I AM Presence, #7a8fa8, lum≈0.55) is medium-blue — use white text
-  // because the background is dark space, not the sphere color itself.
-  const isBright      = lum > 0.65;
-  const shadowColor   = isBright ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.95)';
-  const bodyTextColor = isBright ? '#0a0a14'               : '#e8e4f0';
+  // Always use white text — the dark scrim provides contrast on light spheres.
+  // No sphere color is opaque enough to make white-on-bright unreadable.
+  const isBright      = false; // keep scrim logic path active but text stays white
+  void luminance; // unused now
+  const shadowColor   = 'rgba(0,0,0,0.95)';
+  const bodyTextColor = '#e8e4f0';
 
   // Soft dark scrim over each column for bright spheres
   if (isBright) {
