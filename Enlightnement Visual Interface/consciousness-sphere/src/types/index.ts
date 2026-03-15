@@ -4,7 +4,10 @@ export interface LevelEntry {
   name: string;
   emotionalState: string;
   viewOfLife: string;
-  keyToTranscending: string;
+  keyToTranscending: string;  // "Removal"
+  experience: string;          // "Experience"
+  consciousness: string;       // "Consciousness"
+  location: string;            // "Location"
 }
 
 export interface LayerFacets {

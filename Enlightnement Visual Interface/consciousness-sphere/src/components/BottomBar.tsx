@@ -121,7 +121,7 @@ export default function BottomBar({ getCameraRef: _getCameraRef }: Props) {
             {next && (
               <p style={{
                 fontFamily: 'Cormorant Garamond, Georgia, serif',
-                fontSize: '1.36rem',
+                fontSize: '0.68rem',
                 fontStyle: 'italic',
                 color: 'rgba(244,240,234,0.72)',
                 letterSpacing: '0.04em',
