@@ -24,7 +24,17 @@ export default function ChartPanel() {
   const dissolvedLayers = useExplorerStore((s) => s.dissolvedLayers);
   const bp              = useBreakpoint();
 
-  if (bp !== 'desktop') return null;
+  const isMobile = bp === 'mobile';
+  const panelWidth  = isMobile ? 160 : 230;
+  const leftPos     = isMobile ? '0.5rem' : '1.5rem';
+  const padH        = isMobile ? '0.6rem' : '1rem';
+  const headerFontL = isMobile ? '0.78rem' : '0.92rem';
+  const headerFontS = isMobile ? '0.5rem'  : '0.57rem';
+  const rowPad      = isMobile ? '0.32rem' : '0.42rem';
+  const levelFont   = isMobile ? '0.72rem' : '0.84rem';
+  const dataFont    = isMobile ? '0.6rem'  : '0.68rem';
+  const dimFont     = isMobile ? '0.56rem' : '0.65rem';
+  const footerFont  = isMobile ? '0.68rem' : '0.8rem';
 
   const activeLayer = SORTED.find((l) => !dissolvedLayers.includes(l.id)) ?? null;
   if (!activeLayer) return null;
@@ -47,11 +57,11 @@ export default function ChartPanel() {
         transition={{ duration: 0.45, ease: [0.2, 0, 0.1, 1] }}
         style={{
           position: 'fixed',
-          left: '1.5rem',
+          left: leftPos,
           top: '50%',
           transform: 'translateY(-50%)',
-          width: 230,
-          maxHeight: '78vh',
+          width: panelWidth,
+          maxHeight: isMobile ? '70vh' : '78vh',
           zIndex: 25,
           display: 'flex',
           flexDirection: 'column',
@@ -67,14 +77,14 @@ export default function ChartPanel() {
       >
         {/* ── Header ── */}
         <div style={{
-          padding: '0.8rem 1rem 0.65rem',
+          padding: `0.8rem ${padH} 0.65rem`,
           borderBottom: `1px solid rgba(255,255,255,0.08)`,
           background: hexToRgba(c, 0.10),
           flexShrink: 0,
         }}>
           <div style={{
             fontFamily: FONT_SANS,
-            fontSize: '0.57rem',
+            fontSize: headerFontS,
             fontWeight: 600,
             letterSpacing: '0.18em',
             textTransform: 'uppercase',
@@ -84,12 +94,12 @@ export default function ChartPanel() {
             overflow: 'hidden',
             textOverflow: 'ellipsis',
           }}>
-            {dimLabel}{activeLayer.chartLocation ? `  ·  ${activeLayer.chartLocation}` : ''}
+            {dimLabel}{!isMobile && activeLayer.chartLocation ? `  ·  ${activeLayer.chartLocation}` : ''}
           </div>
           {dimDesc && (
             <div style={{
               fontFamily: FONT_SER,
-              fontSize: '0.92rem',
+              fontSize: headerFontL,
               fontStyle: 'italic',
               fontWeight: 400,
               color: T_BRIGHT,
@@ -104,7 +114,7 @@ export default function ChartPanel() {
         <div style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
-          padding: '0.35rem 1rem',
+          padding: `0.35rem ${padH}`,
           borderBottom: `1px solid rgba(255,255,255,0.06)`,
           gap: '0.5rem',
         }}>
@@ -128,7 +138,7 @@ export default function ChartPanel() {
             <div
               key={entry.name}
               style={{
-                padding: '0.42rem 1rem',
+                padding: `${rowPad} ${padH}`,
                 borderBottom: i < activeLayer.levelData.length - 1
                   ? `1px solid rgba(255,255,255,0.05)`
                   : 'none',
@@ -137,7 +147,7 @@ export default function ChartPanel() {
               {/* Level name — full width */}
               <div style={{
                 fontFamily: FONT_SER,
-                fontSize: '0.84rem',
+                fontSize: levelFont,
                 fontStyle: 'italic',
                 fontWeight: 400,
                 color: T_BRIGHT,
@@ -156,7 +166,7 @@ export default function ChartPanel() {
               }}>
                 <span style={{
                   fontFamily: FONT_SANS,
-                  fontSize: '0.68rem',
+                  fontSize: dataFont,
                   fontWeight: 400,
                   color: T_MID,
                   lineHeight: 1.2,
@@ -165,7 +175,7 @@ export default function ChartPanel() {
                 </span>
                 <span style={{
                   fontFamily: FONT_SANS,
-                  fontSize: '0.65rem',
+                  fontSize: dimFont,
                   fontWeight: 300,
                   color: T_DIM,
                   fontStyle: 'italic',
@@ -206,7 +216,7 @@ export default function ChartPanel() {
         {/* ── Footer: experience + state ── */}
         {(activeLayer.whatWeExperience || activeLayer.stateOfConsciousness) && (
           <div style={{
-            padding: '0.6rem 1rem',
+            padding: `0.6rem ${padH}`,
             borderTop: `1px solid rgba(255,255,255,0.08)`,
             background: hexToRgba(c, 0.10),
             flexShrink: 0,
@@ -229,7 +239,7 @@ export default function ChartPanel() {
                 </div>
                 <div style={{
                   fontFamily: FONT_SER,
-                  fontSize: '0.8rem',
+                  fontSize: footerFont,
                   fontStyle: 'italic',
                   fontWeight: 400,
                   color: T_MID,
@@ -254,7 +264,7 @@ export default function ChartPanel() {
                 </div>
                 <div style={{
                   fontFamily: FONT_SER,
-                  fontSize: '0.8rem',
+                  fontSize: footerFont,
                   fontStyle: 'italic',
                   fontWeight: 400,
                   color: T_MID,

@@ -121,10 +121,10 @@ export default function BottomBar({ getCameraRef: _getCameraRef }: Props) {
             {next && (
               <p style={{
                 fontFamily: 'Cormorant Garamond, Georgia, serif',
-                fontSize: '0.68rem',
+                fontSize: '1.36rem',
                 fontStyle: 'italic',
-                color: `${next.hexColor}88`,
-                letterSpacing: '0.05em',
+                color: 'rgba(244,240,234,0.72)',
+                letterSpacing: '0.04em',
                 textAlign: 'center',
                 pointerEvents: 'none',
                 margin: 0,
@@ -139,22 +139,24 @@ export default function BottomBar({ getCameraRef: _getCameraRef }: Props) {
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}
               style={{
-                background: active ? `${active.hexColor}14` : 'rgba(20,24,40,0.7)',
-                border: `1px solid ${active ? active.hexColor + '50' : 'rgba(255,255,255,0.15)'}`,
+                background: 'rgba(12,16,28,0.8)',
+                border: '1px solid rgba(201,168,124,0.25)',
                 borderRadius: '20px',
                 padding: '0.45rem 1.4rem',
                 cursor: 'pointer',
                 backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.55rem',
                 whiteSpace: 'nowrap',
+                transition: 'border-color 0.2s',
               }}
               onMouseEnter={(e) => {
-                if (active) (e.currentTarget as HTMLButtonElement).style.background = `${active.hexColor}26`;
+                (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(201,168,124,0.55)';
               }}
               onMouseLeave={(e) => {
-                if (active) (e.currentTarget as HTMLButtonElement).style.background = `${active.hexColor}14`;
+                (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(201,168,124,0.25)';
               }}
             >
               <span style={{
@@ -162,14 +164,14 @@ export default function BottomBar({ getCameraRef: _getCameraRef }: Props) {
                 fontSize: '0.68rem',
                 letterSpacing: '0.14em',
                 textTransform: 'uppercase',
-                color: active ? active.hexColor : 'rgba(201,168,124,0.7)',
+                color: 'rgba(201,168,124,0.8)',
               }}>
                 Dissolve this Layer
               </span>
               <svg width="13" height="9" viewBox="0 0 13 9" fill="none">
                 <path
                   d="M1 4.5H10M7.5 1L12 4.5L7.5 8"
-                  stroke={active?.hexColor ?? 'rgba(201,168,124,0.7)'}
+                  stroke="rgba(201,168,124,0.8)"
                   strokeWidth="1.2"
                   strokeLinecap="round"
                   strokeLinejoin="round"

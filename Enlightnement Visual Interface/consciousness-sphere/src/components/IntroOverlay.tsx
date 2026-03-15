@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
+import { useBreakpoint } from '../hooks/useBreakpoint';
 
 interface Props {
   visible: boolean;
@@ -8,6 +9,9 @@ interface Props {
 const RING_SIZES = [600, 460, 340, 240, 160, 96];
 
 export default function IntroOverlay({ visible, onEnter }: Props) {
+  const bp = useBreakpoint();
+  const isMobile = bp === 'mobile';
+
   return (
     <AnimatePresence>
       {visible && (
@@ -162,6 +166,32 @@ export default function IntroOverlay({ visible, onEnter }: Props) {
               <br />
               The center was always already here.
             </p>
+
+            {/* Mobile rotation hint */}
+            {isMobile && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.4, duration: 1.0 }}
+                style={{
+                  fontFamily: 'DM Sans, system-ui, sans-serif',
+                  fontSize: '0.78rem',
+                  color: 'rgba(201,168,124,0.7)',
+                  letterSpacing: '0.05em',
+                  marginBottom: '1.5rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="4" y="2" width="16" height="20" rx="2" />
+                  <path d="M12 18h.01" />
+                </svg>
+                Rotate your phone for the best experience
+              </motion.p>
+            )}
 
             <motion.button
               onClick={onEnter}
