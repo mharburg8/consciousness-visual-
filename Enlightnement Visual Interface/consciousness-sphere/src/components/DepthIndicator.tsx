@@ -1,64 +1,110 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import useExplorerStore from '../stores/useExplorerStore';
 import { layers } from '../data/layers';
+import { useBreakpoint } from '../hooks/useBreakpoint';
+
+const SORTED = [...layers].sort((a, b) => b.radius - a.radius);
+const PANEL_WIDTH = 420;
 
 export default function DepthIndicator() {
-  const cameraDepthLayer = useExplorerStore((s) => s.cameraDepthLayer);
-  const selectedLayer    = useExplorerStore((s) => s.selectedLayer);
+  const dissolvedLayers = useExplorerStore((s) => s.dissolvedLayers);
+  const selectedLayer   = useExplorerStore((s) => s.selectedLayer);
+  const bp              = useBreakpoint();
 
-  // Only show depth label when NOT in a selected panel (panel has its own identity)
-  const layerId = selectedLayer === null ? cameraDepthLayer : null;
-  const layer   = layerId !== null ? layers.find((l) => l.id === layerId) ?? null : null;
+  // Always show the outermost undissolved (active) layer as the header
+  const activeLayer = SORTED.find((l) => !dissolvedLayers.includes(l.id)) ?? null;
+
+  // Shift left on desktop when panel is open so header stays centered in scene
+  const isPanelOpen = selectedLayer !== null;
+  const leftOffset  = bp === 'desktop' && isPanelOpen ? -(PANEL_WIDTH / 2) : 0;
+
+  // Split name into dimension label + description
+  const [dimLabel, dimDesc] = activeLayer
+    ? activeLayer.name.includes(':')
+      ? [activeLayer.name.split(':')[0].trim(), activeLayer.name.split(':')[1].trim()]
+      : [activeLayer.name, '']
+    : ['', ''];
 
   return (
     <AnimatePresence mode="wait">
-      {layer && (
+      {activeLayer && (
         <motion.div
-          key={layer.id}
-          initial={{ opacity: 0, y: -8 }}
+          key={activeLayer.id}
+          initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.6, ease: [0.2, 0, 0.1, 1] }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.5, ease: [0.2, 0, 0.1, 1] }}
           style={{
             position: 'fixed',
-            top: '1.5rem',
-            left: '50%',
+            top: '1.25rem',
+            left: `calc(50% + ${leftOffset}px)`,
             transform: 'translateX(-50%)',
+            transition: 'left 0.5s cubic-bezier(0.32, 0.72, 0, 1)',
             zIndex: 30,
             pointerEvents: 'none',
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
-            gap: '0.55rem',
+            gap: '0.1rem',
           }}
         >
-          {/* Colored pulse dot */}
-          <motion.span
-            animate={{ opacity: [0.6, 1, 0.6], scale: [0.9, 1.1, 0.9] }}
-            transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
-            style={{
-              display: 'inline-block',
-              width: 6,
-              height: 6,
-              borderRadius: '50%',
-              background: layer.hexColor,
-              boxShadow: `0 0 8px ${layer.hexColor}cc, 0 0 16px ${layer.hexColor}44`,
-              flexShrink: 0,
-            }}
-          />
-          {/* Layer name */}
-          <span
-            style={{
+          {/* Dimension label — small caps, colored */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+            <motion.span
+              animate={{ opacity: [0.5, 1, 0.5], scale: [0.85, 1.1, 0.85] }}
+              transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
+              style={{
+                display: 'inline-block',
+                width: 6,
+                height: 6,
+                borderRadius: '50%',
+                background: activeLayer.hexColor,
+                boxShadow: `0 0 8px ${activeLayer.hexColor}cc, 0 0 18px ${activeLayer.hexColor}44`,
+                flexShrink: 0,
+              }}
+            />
+            <span style={{
+              fontFamily: 'DM Sans, system-ui, sans-serif',
+              fontSize: '0.62rem',
+              fontWeight: 500,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: `${activeLayer.hexColor}cc`,
+              textShadow: '0 1px 12px rgba(0,0,0,0.9)',
+              whiteSpace: 'nowrap',
+            }}>
+              {dimLabel}
+            </span>
+          </div>
+
+          {/* Main description — larger italic serif */}
+          {dimDesc && (
+            <span style={{
               fontFamily: 'Cormorant Garamond, Georgia, serif',
-              fontSize: '0.9rem',
+              fontSize: '1.05rem',
               fontWeight: 300,
               fontStyle: 'italic',
-              letterSpacing: '0.04em',
-              color: 'rgba(232, 228, 223, 0.75)',
-              textShadow: `0 0 20px rgba(0,0,0,0.8)`,
+              letterSpacing: '0.02em',
+              color: 'rgba(240, 236, 230, 0.88)',
+              textShadow: '0 1px 16px rgba(0,0,0,0.95), 0 0 32px rgba(0,0,0,0.7)',
               whiteSpace: 'nowrap',
-            }}
-          >
-            {layer.name}
+            }}>
+              {dimDesc}
+            </span>
+          )}
+
+          {/* Subtitle */}
+          <span style={{
+            fontFamily: 'Cormorant Garamond, Georgia, serif',
+            fontSize: '0.7rem',
+            fontWeight: 300,
+            fontStyle: 'italic',
+            letterSpacing: '0.04em',
+            color: 'rgba(200, 196, 210, 0.5)',
+            textShadow: '0 1px 8px rgba(0,0,0,0.9)',
+            whiteSpace: 'nowrap',
+          }}>
+            {activeLayer.subtitle}
           </span>
         </motion.div>
       )}

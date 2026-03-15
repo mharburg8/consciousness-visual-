@@ -17,13 +17,15 @@ const PHASE_OFFSETS: Record<number, number> = {
   1: 0.0, 2: 0.9, 3: 1.8, 4: 2.7, 5: 3.6, 6: 4.5, 7: 5.4,
 };
 
-// Emissive values — inner layers glow more when they become active
+// Emissive values — inner layers glow more when active.
+// Bright-colored spheres (3,2,1) use much lower intensity to prevent bloom overexposure.
 const EMISSIVE_INTENSITY: Record<number, number> = {
-  1: 2.2, 2: 1.8, 3: 1.4, 4: 0.9, 5: 0.5, 6: 0.2, 7: 0.1,
+  1: 0.55, 2: 0.45, 3: 0.30, 4: 0.80, 5: 0.50, 6: 0.20, 7: 0.10,
 };
+// Emissive tint — kept dark so bright spheres don't bloom excessively
 const EMISSIVE_COLORS: Record<number, string> = {
   7: '#7a2a3e', 6: '#c48a20', 5: '#2a9070',
-  4: '#e8b848', 3: '#9ab8d4', 2: '#d4c4e0', 1: '#fff5e8',
+  4: '#c49028', 3: '#2a4a6a', 2: '#4a3a60', 1: '#6a5a40',
 };
 
 interface Props { layer: Layer }

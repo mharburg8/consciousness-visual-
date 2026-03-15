@@ -9,8 +9,7 @@ import NavigationGuide from './components/NavigationGuide';
 import HelpButton from './components/HelpButton';
 import TransitionIndicator from './components/TransitionIndicator';
 import DepthIndicator from './components/DepthIndicator';
-import LayerNav from './components/LayerNav';
-import NextLayerButton from './components/NextLayerButton';
+import BottomBar from './components/BottomBar';
 import useExplorerStore from './stores/useExplorerStore';
 import { useBreakpoint } from './hooks/useBreakpoint';
 import './styles/globals.css';
@@ -56,12 +55,10 @@ function App() {
           </div>
           <InfoPanel />
           <TransitionIndicator />
-          {/* Top-center depth label — shows which sphere you're inside */}
+          {/* Top-center: static flat header showing active dimension */}
           <DepthIndicator />
-          {/* Dissolve current layer button */}
-          <NextLayerButton />
-          {/* Bottom-center layer jump nav — always visible */}
-          <LayerNav getCameraRef={() => null} />
+          {/* Bottom: Dissolve button (left) + Jump to Layer (right) on same row */}
+          <BottomBar getCameraRef={() => null} />
         </>
       )}
 
