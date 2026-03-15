@@ -36,6 +36,23 @@ export default function BottomBar({ getCameraRef: _getCameraRef }: Props) {
 
   const navSorted = [...layers].sort((a, b) => b.id - a.id);
 
+  // Jump to a layer: dissolve all layers with larger radius (outer layers) so the
+  // target layer becomes the active (outermost visible) sphere, then open its panel.
+  const jumpToLayer = (layerId: number) => {
+    // SORTED is sorted outermost → innermost (by descending radius).
+    // Layers that are "outside" the target have a higher index in SORTED
+    // only if they have larger radius. Layers with id > targetId are outermost (radius is bigger).
+    // Actually layers.ts id 7 = outermost (r=22), id 1 = innermost (r=2.2).
+    // So to jump to layer X, dissolve all layers where id > X (higher id = outer sphere).
+    SORTED.forEach((l) => {
+      if (l.id > layerId && !dissolvedLayers.includes(l.id)) {
+        dissolveLayer(l.id);
+      }
+    });
+    selectLayer(layerId);
+    setNavOpen(false);
+  };
+
   return (
     <div
       style={{
@@ -161,7 +178,7 @@ export default function BottomBar({ getCameraRef: _getCameraRef }: Props) {
       </AnimatePresence>
 
       {/* ── RIGHT: Jump to Layer dropdown ───────────────────────────────── */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+      <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
         <AnimatePresence>
           {navOpen && (
             <motion.div
@@ -173,6 +190,7 @@ export default function BottomBar({ getCameraRef: _getCameraRef }: Props) {
                 position: 'absolute',
                 bottom: 'calc(100% + 0.5rem)',
                 right: 0,
+                zIndex: 100,
                 background: 'rgba(8, 11, 24, 0.94)',
                 backdropFilter: 'blur(20px)',
                 WebkitBackdropFilter: 'blur(20px)',
@@ -209,7 +227,7 @@ export default function BottomBar({ getCameraRef: _getCameraRef }: Props) {
                 return (
                   <button
                     key={layer.id}
-                    onClick={() => { selectLayer(layer.id); setNavOpen(false); }}
+                    onClick={() => jumpToLayer(layer.id)}
                     style={{
                       background: isActive ? `${layer.hexColor}18` : 'transparent',
                       border: 'none', cursor: 'pointer',

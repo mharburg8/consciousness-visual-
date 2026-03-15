@@ -93,19 +93,20 @@ export default function DepthIndicator() {
             </span>
           )}
 
-          {/* Subtitle */}
-          <span style={{
-            fontFamily: 'Cormorant Garamond, Georgia, serif',
-            fontSize: '0.7rem',
-            fontWeight: 300,
-            fontStyle: 'italic',
-            letterSpacing: '0.04em',
-            color: 'rgba(200, 196, 210, 0.5)',
-            textShadow: '0 1px 8px rgba(0,0,0,0.9)',
-            whiteSpace: 'nowrap',
-          }}>
-            {activeLayer.subtitle}
-          </span>
+          {/* Emotions / levels — inline dot-separated */}
+          {activeLayer.levels.length > 0 && (
+            <span style={{
+              fontFamily: 'DM Sans, system-ui, sans-serif',
+              fontSize: '0.6rem',
+              fontWeight: 400,
+              letterSpacing: '0.10em',
+              color: `${activeLayer.hexColor}99`,
+              textShadow: '0 1px 8px rgba(0,0,0,0.9)',
+              whiteSpace: 'nowrap',
+            }}>
+              {activeLayer.levels.join(' · ')}
+            </span>
+          )}
         </motion.div>
       )}
     </AnimatePresence>
