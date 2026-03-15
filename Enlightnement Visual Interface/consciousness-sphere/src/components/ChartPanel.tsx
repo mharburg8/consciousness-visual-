@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import useExplorerStore from '../stores/useExplorerStore';
 import { layers } from '../data/layers';
@@ -23,6 +24,7 @@ const FONT_SER  = 'Cormorant Garamond, Georgia, serif';
 export default function ChartPanel() {
   const dissolvedLayers = useExplorerStore((s) => s.dissolvedLayers);
   const bp              = useBreakpoint();
+  const [collapsed, setCollapsed] = useState(false);
 
   const isMobile = bp === 'mobile';
   const panelWidth  = isMobile ? 160 : 230;
@@ -47,8 +49,49 @@ export default function ChartPanel() {
     ? activeLayer.name.split(':')[1].trim()
     : '';
 
+  const tabWidth = 20;
+
   return (
+    <>
+      {/* ── Collapse/expand tab — always visible ── */}
+      <motion.button
+        onClick={() => setCollapsed((c) => !c)}
+        animate={{ x: collapsed ? 0 : panelWidth + 6 }}
+        transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+        style={{
+          position: 'fixed',
+          left: leftPos,
+          top: '50%',
+          transform: 'translateY(-50%)',
+          zIndex: 27,
+          width: tabWidth,
+          height: 48,
+          background: hexToRgba(c, 0.28),
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: `1px solid ${hexToRgba(c, 0.4)}`,
+          borderRadius: collapsed ? '0 8px 8px 0' : '8px 0 0 8px',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          pointerEvents: 'all',
+          padding: 0,
+        }}
+        aria-label={collapsed ? 'Show chart panel' : 'Hide chart panel'}
+      >
+        <motion.span
+          animate={{ rotate: collapsed ? 0 : 180 }}
+          transition={{ duration: 0.3 }}
+          style={{ display: 'flex', color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem' }}
+        >
+          ›
+        </motion.span>
+      </motion.button>
+
+      {/* ── Panel ── */}
     <AnimatePresence mode="wait">
+      {!collapsed && (
       <motion.div
         key={activeLayer.id}
         initial={{ opacity: 0, x: -10 }}
@@ -57,7 +100,7 @@ export default function ChartPanel() {
         transition={{ duration: 0.45, ease: [0.2, 0, 0.1, 1] }}
         style={{
           position: 'fixed',
-          left: leftPos,
+          left: `calc(${leftPos} + ${tabWidth + 6}px)`,
           top: '50%',
           transform: 'translateY(-50%)',
           width: panelWidth,
@@ -277,6 +320,8 @@ export default function ChartPanel() {
           </div>
         )}
       </motion.div>
+      )}
     </AnimatePresence>
+    </>
   );
 }

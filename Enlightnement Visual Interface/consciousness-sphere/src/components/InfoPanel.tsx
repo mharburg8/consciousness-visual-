@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { AnimatePresence, motion, type PanInfo } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import useExplorerStore from '../stores/useExplorerStore';
 import { layers } from '../data/layers';
 import FacetTabs from './FacetTabs';
@@ -30,13 +30,16 @@ export default function InfoPanel() {
   const selectLayer   = useExplorerStore((s) => s.selectLayer);
   const activeFacet   = useExplorerStore((s) => s.activeFacet);
   const bp            = useBreakpoint();
+  const [minimized, setMinimized] = useState(false);
 
   const layer = selectedLayer !== null
     ? layers.find((l) => l.id === selectedLayer) ?? null
     : null;
 
+  // Reset minimized state when layer changes
+  useEffect(() => { setMinimized(false); }, [selectedLayer]);
+
   const isDesktop = bp === 'desktop';
-  const isMobile  = bp === 'mobile';
   const variants  = isDesktop ? desktopVariants : bottomVariants;
   const panelHeight = bp === 'tablet' ? '55vh' : '65vh';
 
@@ -48,16 +51,17 @@ export default function InfoPanel() {
     return () => window.removeEventListener('keydown', handler);
   }, [selectLayer]);
 
-  const dragProps = isMobile
-    ? {
-        drag: 'y' as const,
-        dragConstraints: { top: 0, bottom: 0 },
-        dragElastic: { top: 0, bottom: 0.4 },
-        onDragEnd: (_: PointerEvent, info: PanInfo) => {
-          if (info.offset.y > 80) selectLayer(null);
-        },
-      }
-    : {};
+  // Swipe-to-dismiss on drag handle only
+  const dragStartY = useRef<number | null>(null);
+  const handleDragHandlePointerDown = (e: React.PointerEvent) => {
+    dragStartY.current = e.clientY;
+  };
+  const handleDragHandlePointerUp = (e: React.PointerEvent) => {
+    if (dragStartY.current !== null && e.clientY - dragStartY.current > 70) {
+      selectLayer(null);
+    }
+    dragStartY.current = null;
+  };
 
   const paragraphs = layer
     ? layer.facets[activeFacet].split('\n\n').map((p) => p.trim()).filter(Boolean)
@@ -71,13 +75,15 @@ export default function InfoPanel() {
         <motion.aside
           key="info-panel"
           initial="hidden"
-          animate="visible"
+          animate={minimized
+            ? (isDesktop ? { x: '88%', opacity: 1 } : { y: '88%', opacity: 1 })
+            : 'visible'
+          }
           exit="exit"
           variants={variants}
           transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
           role="complementary"
           aria-label={`Details for ${layer.name}`}
-          {...dragProps}
           style={
             isDesktop
               ? {
@@ -113,9 +119,13 @@ export default function InfoPanel() {
                 }
           }
         >
-          {/* Drag handle (mobile/tablet) */}
+          {/* Drag handle (mobile/tablet) — swipe down to dismiss */}
           {!isDesktop && (
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 6px' }}>
+            <div
+              onPointerDown={handleDragHandlePointerDown}
+              onPointerUp={handleDragHandlePointerUp}
+              style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 6px', cursor: 'grab', touchAction: 'none' }}
+            >
               <div style={{
                 width: 36, height: 3, borderRadius: 9999,
                 background: `${layer.hexColor}88`,
@@ -147,21 +157,44 @@ export default function InfoPanel() {
                 </span>
               </div>
 
-              <button
-                onClick={() => selectLayer(null)}
-                aria-label="Close panel"
-                style={{
-                  background: 'transparent', border: 'none', cursor: 'pointer',
-                  color: 'rgba(180,174,190,0.5)', padding: '4px',
-                  transition: 'color 0.2s',
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = '#e8e4df')}
-                onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(180,174,190,0.5)')}
-              >
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                  <path d="M1 1L13 13M13 1L1 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                {/* Minimize / restore */}
+                <button
+                  onClick={() => setMinimized((m) => !m)}
+                  aria-label={minimized ? 'Restore panel' : 'Minimize panel'}
+                  title={minimized ? 'Restore' : 'Minimize'}
+                  style={{
+                    background: 'transparent', border: 'none', cursor: 'pointer',
+                    color: 'rgba(180,174,190,0.5)', padding: '4px',
+                    transition: 'color 0.2s',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = '#e8e4df')}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(180,174,190,0.5)')}
+                >
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    {minimized
+                      ? <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      : <path d="M2 7h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                    }
+                  </svg>
+                </button>
+                {/* Close */}
+                <button
+                  onClick={() => selectLayer(null)}
+                  aria-label="Close panel"
+                  style={{
+                    background: 'transparent', border: 'none', cursor: 'pointer',
+                    color: 'rgba(180,174,190,0.5)', padding: '4px',
+                    transition: 'color 0.2s',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = '#e8e4df')}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(180,174,190,0.5)')}
+                >
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    <path d="M1 1L13 13M13 1L1 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                </button>
+              </div>
             </div>
 
             {/* Layer name — the dominant visual element */}
