@@ -27,6 +27,7 @@ export default function DepthIndicator() {
 
   const activeLayer = SORTED.find((l) => !dissolvedLayers.includes(l.id)) ?? null;
 
+  const isMobile    = bp === 'mobile';
   const isPanelOpen = selectedLayer !== null;
   const leftOffset  = bp === 'desktop' && isPanelOpen ? -(PANEL_WIDTH / 2) : 0;
 
@@ -70,13 +71,13 @@ export default function DepthIndicator() {
             borderRadius: '16px',
             border: `1px solid ${hexToRgba(activeLayer.hexColor, 0.80)}`,
             boxShadow: `0 4px 32px ${hexToRgba(activeLayer.hexColor, 0.30)}, inset 0 1px 0 rgba(255,255,255,0.08)`,
-            padding: '0.7rem 1.8rem 0.8rem',
-            minWidth: '300px',
-            maxWidth: '640px',
+            padding: isMobile ? '0.38rem 0.9rem 0.42rem' : '0.7rem 1.8rem 0.8rem',
+            minWidth: isMobile ? 0 : '300px',
+            maxWidth: isMobile ? 'min(88vw, 360px)' : '640px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '0.18rem',
+            gap: isMobile ? '0.1rem' : '0.18rem',
           }}
         >
           {/* Row 1: dimension label + chart location */}
@@ -93,19 +94,22 @@ export default function DepthIndicator() {
             />
             <span style={{
               fontFamily: 'DM Sans, system-ui, sans-serif',
-              fontSize: '0.64rem',
+              fontSize: isMobile ? '0.52rem' : '0.64rem',
               fontWeight: 600,
               letterSpacing: '0.20em',
               textTransform: 'uppercase',
               color: textDim,
               whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              maxWidth: isMobile ? '70vw' : undefined,
             }}>
-              {dimLabel}{activeLayer.chartLocation ? `  ·  ${activeLayer.chartLocation}` : ''}
+              {dimLabel}{!isMobile && activeLayer.chartLocation ? `  ·  ${activeLayer.chartLocation}` : ''}
             </span>
           </div>
 
-          {/* Row 2: large italic description */}
-          {dimDesc && (
+          {/* Row 2: large italic description — hidden on mobile to save space */}
+          {dimDesc && !isMobile && (
             <span style={{
               fontFamily: 'Cormorant Garamond, Georgia, serif',
               fontSize: '1.55rem',
@@ -120,6 +124,24 @@ export default function DepthIndicator() {
               {dimDesc}
             </span>
           )}
+          {/* Row 2 mobile: smaller version */}
+          {dimDesc && isMobile && (
+            <span style={{
+              fontFamily: 'Cormorant Garamond, Georgia, serif',
+              fontSize: '0.95rem',
+              fontWeight: 400,
+              fontStyle: 'italic',
+              color: textPrimary,
+              textAlign: 'center',
+              lineHeight: 1.15,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              maxWidth: '80vw',
+            }}>
+              {dimDesc}
+            </span>
+          )}
 
           {/* Divider */}
           <div style={{ width: '80%', height: 1, background: dividerCol, margin: '0.1rem 0' }} />
@@ -128,19 +150,22 @@ export default function DepthIndicator() {
           {activeLayer.levels.length > 0 && (
             <span style={{
               fontFamily: 'DM Sans, system-ui, sans-serif',
-              fontSize: '0.78rem',
+              fontSize: isMobile ? '0.6rem' : '0.78rem',
               fontWeight: 400,
               letterSpacing: '0.09em',
               color: textDim,
               textAlign: 'center',
               whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              maxWidth: isMobile ? '86vw' : undefined,
             }}>
               {activeLayer.levels.join('  ·  ')}
             </span>
           )}
 
-          {/* Row 4: associated emotional states */}
-          {activeLayer.levelData.length > 0 && (
+          {/* Row 4: associated emotional states — hidden on mobile to save space */}
+          {activeLayer.levelData.length > 0 && !isMobile && (
             <span style={{
               fontFamily: 'DM Sans, system-ui, sans-serif',
               fontSize: '0.66rem',

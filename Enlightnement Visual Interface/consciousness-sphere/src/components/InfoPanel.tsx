@@ -41,7 +41,7 @@ export default function InfoPanel() {
 
   const isDesktop = bp === 'desktop';
   const variants  = isDesktop ? desktopVariants : bottomVariants;
-  const panelHeight = bp === 'tablet' ? '55vh' : '65vh';
+  const panelHeight = bp === 'tablet' ? '60vh' : '82vh';
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -135,7 +135,7 @@ export default function InfoPanel() {
 
           {/* ── HEADER ── */}
           <div style={{
-            padding: isDesktop ? '2rem 2rem 1rem' : '1rem 1.5rem 0.75rem',
+            padding: isDesktop ? '2rem 2rem 1rem' : '0.75rem 1.25rem 0.5rem',
             flexShrink: 0,
           }}>
             {/* Top row: layer counter + close */}
@@ -289,7 +289,8 @@ export default function InfoPanel() {
             style={{
               flex: 1,
               overflowY: 'auto',
-              padding: isDesktop ? '1.5rem 2rem 4rem' : '1.25rem 1.5rem 3rem',
+              WebkitOverflowScrolling: 'touch' as React.CSSProperties['WebkitOverflowScrolling'],
+              padding: isDesktop ? '1.5rem 2rem 4rem' : '1rem 1.25rem 2rem',
               minHeight: 0,
               scrollbarWidth: 'thin',
               scrollbarColor: `${layer.hexColor}44 transparent`,
