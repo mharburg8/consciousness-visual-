@@ -3,112 +3,144 @@ import useExplorerStore from '../stores/useExplorerStore';
 import { layers } from '../data/layers';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 
-const SORTED = [...layers].sort((a, b) => b.radius - a.radius);
+const SORTED      = [...layers].sort((a, b) => b.radius - a.radius);
 const PANEL_WIDTH = 420;
+
+function hexToRgba(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function luminance(hex: string): number {
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  return 0.299 * r + 0.587 * g + 0.114 * b;
+}
 
 export default function DepthIndicator() {
   const dissolvedLayers = useExplorerStore((s) => s.dissolvedLayers);
   const selectedLayer   = useExplorerStore((s) => s.selectedLayer);
   const bp              = useBreakpoint();
 
-  // Always show the outermost undissolved (active) layer as the header
   const activeLayer = SORTED.find((l) => !dissolvedLayers.includes(l.id)) ?? null;
 
-  // Shift left on desktop when panel is open so header stays centered in scene
   const isPanelOpen = selectedLayer !== null;
   const leftOffset  = bp === 'desktop' && isPanelOpen ? -(PANEL_WIDTH / 2) : 0;
 
-  // Split name into dimension label + description
-  const [dimLabel, dimDesc] = activeLayer
-    ? activeLayer.name.includes(':')
-      ? [activeLayer.name.split(':')[0].trim(), activeLayer.name.split(':')[1].trim()]
-      : [activeLayer.name, '']
-    : ['', ''];
+  if (!activeLayer) return null;
+
+  // Text color: dark text only for very light spheres (layers 1+2)
+  const lum         = luminance(activeLayer.hexColor);
+  const useDarkText = lum > 0.65;
+  const textPrimary = useDarkText ? '#0c0c18' : '#f4f0ea';
+  const textDim     = useDarkText ? 'rgba(12,12,24,0.65)' : 'rgba(244,240,234,0.62)';
+  const dividerCol  = useDarkText ? 'rgba(12,12,24,0.20)' : 'rgba(244,240,234,0.18)';
+
+  // Split "3rd Dimension: Contraction & Fear" → ["3rd Dimension", "Contraction & Fear"]
+  const colonIdx = activeLayer.name.indexOf(':');
+  const dimLabel = colonIdx >= 0 ? activeLayer.name.slice(0, colonIdx).trim() : activeLayer.name;
+  const dimDesc  = colonIdx >= 0 ? activeLayer.name.slice(colonIdx + 1).trim() : '';
 
   return (
     <AnimatePresence mode="wait">
-      {activeLayer && (
-        <motion.div
-          key={activeLayer.id}
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.5, ease: [0.2, 0, 0.1, 1] }}
-          style={{
-            position: 'fixed',
-            top: '1.25rem',
-            left: `calc(50% + ${leftOffset}px)`,
-            transform: 'translateX(-50%)',
-            transition: 'left 0.5s cubic-bezier(0.32, 0.72, 0, 1)',
-            zIndex: 30,
-            pointerEvents: 'none',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '0.1rem',
-          }}
-        >
-          {/* Dimension label — small caps, colored */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-            <motion.span
-              animate={{ opacity: [0.5, 1, 0.5], scale: [0.85, 1.1, 0.85] }}
-              transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
-              style={{
-                display: 'inline-block',
-                width: 6,
-                height: 6,
-                borderRadius: '50%',
-                background: activeLayer.hexColor,
-                boxShadow: `0 0 8px ${activeLayer.hexColor}cc, 0 0 18px ${activeLayer.hexColor}44`,
-                flexShrink: 0,
-              }}
-            />
-            <span style={{
-              fontFamily: 'DM Sans, system-ui, sans-serif',
-              fontSize: '0.62rem',
-              fontWeight: 500,
-              letterSpacing: '0.18em',
-              textTransform: 'uppercase',
-              color: `${activeLayer.hexColor}cc`,
-              textShadow: '0 1px 12px rgba(0,0,0,0.9)',
-              whiteSpace: 'nowrap',
-            }}>
-              {dimLabel}
-            </span>
-          </div>
+      <motion.div
+        key={activeLayer.id}
+        initial={{ opacity: 0, y: -16, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0,   scale: 1    }}
+        exit={{ opacity: 0, y: -16, scale: 0.97 }}
+        transition={{ duration: 0.45, ease: [0.2, 0, 0.1, 1] }}
+        style={{
+          position: 'fixed',
+          top: '0.9rem',
+          left: `calc(50% + ${leftOffset}px)`,
+          transform: 'translateX(-50%)',
+          transition: 'left 0.5s cubic-bezier(0.32, 0.72, 0, 1)',
+          zIndex: 30,
+          pointerEvents: 'none',
+          // Sphere-tinted frosted card
+          background: hexToRgba(activeLayer.hexColor, 0.58),
+          backdropFilter: 'blur(28px)',
+          WebkitBackdropFilter: 'blur(28px)',
+          borderRadius: '16px',
+          border: `1px solid ${hexToRgba(activeLayer.hexColor, 0.75)}`,
+          boxShadow: `0 4px 32px ${hexToRgba(activeLayer.hexColor, 0.28)}, inset 0 1px 0 ${hexToRgba('#ffffff', 0.08)}`,
+          padding: '0.7rem 1.8rem 0.8rem',
+          minWidth: '300px',
+          maxWidth: '640px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '0.18rem',
+        }}
+      >
+        {/* Row 1: dimension label + chart location (small caps) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
+          <motion.span
+            animate={{ opacity: [0.45, 1, 0.45] }}
+            transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
+            style={{
+              display: 'inline-block',
+              width: 7, height: 7, borderRadius: '50%', flexShrink: 0,
+              background: textPrimary,
+              opacity: 0.75,
+            }}
+          />
+          <span style={{
+            fontFamily: 'DM Sans, system-ui, sans-serif',
+            fontSize: '0.64rem',
+            fontWeight: 600,
+            letterSpacing: '0.20em',
+            textTransform: 'uppercase',
+            color: textDim,
+            whiteSpace: 'nowrap',
+          }}>
+            {dimLabel}{activeLayer.chartLocation ? `  ·  ${activeLayer.chartLocation}` : ''}
+          </span>
+        </div>
 
-          {/* Main description — larger italic serif */}
-          {dimDesc && (
-            <span style={{
-              fontFamily: 'Cormorant Garamond, Georgia, serif',
-              fontSize: '1.05rem',
-              fontWeight: 300,
-              fontStyle: 'italic',
-              letterSpacing: '0.02em',
-              color: 'rgba(240, 236, 230, 0.88)',
-              textShadow: '0 1px 16px rgba(0,0,0,0.95), 0 0 32px rgba(0,0,0,0.7)',
-              whiteSpace: 'nowrap',
-            }}>
-              {dimDesc}
-            </span>
-          )}
+        {/* Row 2: main description — large italic */}
+        {dimDesc && (
+          <span style={{
+            fontFamily: 'Cormorant Garamond, Georgia, serif',
+            fontSize: '1.55rem',
+            fontWeight: 400,
+            fontStyle: 'italic',
+            letterSpacing: '0.01em',
+            color: textPrimary,
+            textAlign: 'center',
+            lineHeight: 1.15,
+            whiteSpace: 'nowrap',
+          }}>
+            {dimDesc}
+          </span>
+        )}
 
-          {/* Emotions / levels — inline dot-separated */}
-          {activeLayer.levels.length > 0 && (
-            <span style={{
-              fontFamily: 'DM Sans, system-ui, sans-serif',
-              fontSize: '0.6rem',
-              fontWeight: 400,
-              letterSpacing: '0.10em',
-              color: `${activeLayer.hexColor}99`,
-              textShadow: '0 1px 8px rgba(0,0,0,0.9)',
-              whiteSpace: 'nowrap',
-            }}>
-              {activeLayer.levels.join(' · ')}
-            </span>
-          )}
-        </motion.div>
-      )}
+        {/* Thin divider */}
+        <div style={{
+          width: '80%',
+          height: 1,
+          background: dividerCol,
+          margin: '0.1rem 0',
+        }} />
+
+        {/* Row 3: emotions / levels — bigger, spaced */}
+        {activeLayer.levels.length > 0 && (
+          <span style={{
+            fontFamily: 'DM Sans, system-ui, sans-serif',
+            fontSize: '0.78rem',
+            fontWeight: 400,
+            letterSpacing: '0.09em',
+            color: textDim,
+            textAlign: 'center',
+            whiteSpace: 'nowrap',
+          }}>
+            {activeLayer.levels.join('  ·  ')}
+          </span>
+        )}
+      </motion.div>
     </AnimatePresence>
   );
 }
