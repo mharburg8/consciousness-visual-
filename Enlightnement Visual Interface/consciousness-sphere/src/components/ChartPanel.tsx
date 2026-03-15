@@ -49,7 +49,7 @@ export default function ChartPanel() {
           position: 'fixed',
           left: '1.5rem',
           top: '50%',
-          transform: 'translateY(calc(-50% + 2.5vh))',
+          transform: 'translateY(-50%)',
           width: 230,
           maxHeight: '78vh',
           zIndex: 25,

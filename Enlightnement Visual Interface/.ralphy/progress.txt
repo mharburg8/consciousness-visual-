@@ -376,3 +376,55 @@
   @react-three/postprocessing@2.19, zustand@5, framer-motion@12, gsap@3.14
 - Tests: 9/9 pass (2 App render tests + 7 dependency import smoke tests)
 - Lint: clean (no errors or warnings)
+- [✗] 2026-03-13 23:21 - Scaffold Vite React TypeScript project at `./consciousness-sphere/` using `npm create vite@latest consciousness-sphere -- --template react-ts`
+- [✓] 2026-03-14 00:10 - Install dev dependencies: `tailwindcss @tailwindcss/vite @types/three`
+- [✓] 2026-03-14 00:10 - Configure Tailwind CSS in `vite.config.ts` using `@tailwindcss/vite` plugin
+- [✓] 2026-03-14 00:10 - Create `src/styles/globals.css` with all CSS variables from the color palette (--bg-primary, --layer-1 through --layer-7, --center, --threshold-glow, etc.) and Google Fonts import for Cormorant Garamond + DM Sans
+- [✓] 2026-03-14 00:11 - Create `src/types/index.ts` with Layer, LayerFacets, FacetKey, and ExplorerStore TypeScript interfaces as defined in the architecture doc
+- [✓] 2026-03-14 00:11 - Update `index.html` to import globals.css and set meta viewport for mobile
+- [✓] 2026-03-14 00:15 - Create `src/data/layers.ts` exporting a `layers: Layer[]` array with all 7 layers in order (id 7 = outermost to id 1 = innermost) with correct radii, colors, and level names
+- [✓] 2026-03-14 00:15 - Write full facet content for Layer 7 — 3rd Dimension: Contraction & Fear (levels: Shame, Guilt, Apathy, Grief, Fear, Desire, Anger, Pride) — all 4 facets: experience, veil, dissolving, signs
+- [✓] 2026-03-14 00:15 - Write full facet content for Layer 6 — 4th Dimension: Functional Self & Willpower (levels: Courage, Neutrality, Willingness, Acceptance) — all 4 facets
+- [✓] 2026-03-14 00:16 - Write full facet content for Layer 5 — New Humanity Consciousness: Meaning & Wisdom (levels: Inner Light/Reason, Inner Wisdom, Inner Love) — all 4 facets
+- [✓] 2026-03-14 00:16 - Write full facet content for Layer 4 — 5th Dimension: Unity & Bliss (levels: Oneness/Joy, Presence/Peace) — all 4 facets
+- [✓] 2026-03-14 00:16 - Write full facet content for Layer 3 — I AM Presence: Beyond the Personal (levels: Non-Duality, Awareness) — all 4 facets
+- [✓] 2026-03-14 00:18 - Write full facet content for Layer 2 — Enlightenment: The Great Void & Grace (levels: The Great Void, Divine Grace & Love) — all 4 facets
+- [✓] 2026-03-14 00:19 - Write full facet content for Layer 1 — 12th Dimension: Supra-Causal Truth & Full Consciousness (levels: Supra-Causal Truth, Full Consciousness) — all 4 facets
+- [✓] 2026-03-14 00:20 - Export a `centerData` object for the center point (name, description — not a layer)
+- [✓] 2026-03-14 00:20 - Create `src/stores/useExplorerStore.ts` — Zustand store with: selectedLayer, hoveredLayer, activeFacet, isGuideOpen, isTextMode, isHighQuality, hasSeenGuide and all action functions. Persist hasSeenGuide to localStorage via zustand/middleware persist.
+- [✓] 2026-03-14 00:21 - Create `src/components/Scene.tsx` — React Three Fiber Canvas with PerspectiveCamera at [0, 2, 12], ambient light (0.3), point light at origin, OrbitControls (full 360°, zoom enabled, touch enabled), dark navy background (#0a0e1a), React.Suspense wrapper with loading fallback
+- [✓] 2026-03-14 00:21 - Create `src/components/CenterGlow.tsx` — Sphere radius 0.3, warm white-gold color (#fff8e8), MeshStandardMaterial with emissive, gentle pulsing luminosity via useFrame sinusoidal animation
+- [✓] 2026-03-14 00:23 - Create `src/components/SphereLayer.tsx` — Individual sphere using MeshPhysicalMaterial with transmission, roughness, thickness, ior. Props: layer data, selected/hovered state from store. Idle Y-rotation via useFrame at layer-specific speed. Breathing scale oscillation. onPointerEnter/Leave/Click handlers connecting to store.
+- [✓] 2026-03-14 00:24 - Create `src/components/ConcentricSpheres.tsx` — Maps layers array to SphereLayer components + renders CenterGlow + ThresholdRing + ParticleField
+- [✓] 2026-03-14 00:24 - Create `src/components/ThresholdRing.tsx` — Torus geometry at radius 6.5 (midpoint between layer 7 and 6), warm gold color (#d4a04a), subtle glow/emissive, slow rotation
+- [✓] 2026-03-14 00:25 - Create `src/components/ParticleField.tsx` — BufferGeometry Points with count from store (300 high / 100 low), randomized positions between radii 1 and 7.5, slow drift animation via useFrame, white-cream color with low opacity
+- [✓] 2026-03-14 00:29 - Create `src/hooks/useSphereInteraction.ts` — shared hook returning hover and click handlers. On click: GSAP timeline that fades outer layers (opacity to 0.05, scale to 1.05), highlights selected (emissive pulse), dollies camera to layer radius + 2.5. On deselect: GSAP restores all layers, camera returns to [0, 2, 12].
+- [✓] 2026-03-14 00:30 - Wire dissolve animations into SphereLayer: when selectedLayer is set and layer.id > selectedLayer, apply dissolved appearance. When layer.id === selectedLayer, apply highlight pulse.
+- [✓] 2026-03-14 00:32 - Add hover dimming: when hoveredLayer is set, hovered sphere brightness 1.3x, all others 0.85x. Smooth transition via useFrame lerp.
+- [✓] 2026-03-14 00:33 - Create `src/components/TransitionIndicator.tsx` — displays brief contextual message "This is the threshold between contraction and expansion." when selection crosses the Layer 7 / Layer 6 boundary. Auto-dismisses after 3 seconds. Framer Motion fade in/out.
+- [✓] 2026-03-14 00:34 - Add keyboard support to Scene: R key resets camera to default, Escape deselects layer, Tab cycles through layers
+- [✓] 2026-03-14 00:34 - Create `src/components/FacetTabs.tsx` — 4 tab buttons: Experience | The Veil | Dissolving | Signs. Active tab highlighted. Keyboard arrow-left/right navigation. Connects to store.setActiveFacet.
+- [✓] 2026-03-14 00:35 - Create `src/components/LevelList.tsx` — displays individual consciousness levels within a layer as styled chips/pills. Layout wraps naturally.
+- [✓] 2026-03-14 00:36 - Create `src/components/LayerBreadcrumb.tsx` — shows "Layer X / 7" and layer name. Subtle depth indicator.
+- [✓] 2026-03-14 00:38 - Create `src/components/InfoPanel.tsx` — Glassmorphism panel (rgba(10,14,26,0.8), backdrop-blur 20px, border rgba(255,255,255,0.08)). Contains LayerBreadcrumb, layer title (Cormorant Garamond), LevelList, FacetTabs, scrollable facet content area, X close button. Framer Motion slideInRight on desktop (>1024px), slideInUp on tablet/mobile. Reads selectedLayer from store, displays corresponding layer data and active facet content. aria-live="polite" on content area.
+- [✓] 2026-03-14 00:39 - Create `src/components/NavigationGuide.tsx` — First-visit modal overlay. Title: "You're Not Climbing. You're Seeing Through." Intro paragraph. Desktop and mobile control instructions with emoji icons. Closing line. "Begin Exploring" button. Glassmorphism styling. Framer Motion fade in/out.
+- [✓] 2026-03-14 00:39 - Create `src/components/HelpButton.tsx` — Fixed "?" button bottom-left corner. Opens NavigationGuide via store.toggleGuide.
+- [✓] 2026-03-14 00:40 - Create `src/components/IntroOverlay.tsx` — Optional landing screen before entering the experience. Fade transition to reveal the 3D scene.
+- [✓] 2026-03-14 00:42 - Create `src/components/TextModeAccordion.tsx` — Full accessible fallback: accordion UI listing all 7 layers with expandable sections for each of the 4 facets. Uses same data from layers.ts. No WebGL dependency. Tailwind styled. Keyboard navigable.
+- [✓] 2026-03-14 00:43 - Create `src/components/AccessibilityToggle.tsx` — Fixed toggle button (corner icon). Switches store.isTextMode. When true, Canvas is hidden and TextModeAccordion is shown.
+- [✓] 2026-03-14 00:44 - Create `src/components/QualityToggle.tsx` — Fixed toggle button. Switches store.isHighQuality. Updates particle count, bloom, material complexity.
+- [✓] 2026-03-14 00:45 - Add aria-labels to all sphere elements in SphereLayer: aria-label="[Layer Name] — click to explore", role="button", tabIndex
+- [✓] 2026-03-14 00:47 - Add prefers-reduced-motion support: create useReducedMotion hook, disable rotation/particles/breathing animations, use simple opacity fades instead of GSAP transforms
+- [✓] 2026-03-14 00:52 - Verify WCAG AA contrast (4.5:1) for all text in InfoPanel against panel background
+- [✓] 2026-03-14 00:53 - Add responsive CSS: InfoPanel right-panel on >1024px, bottom-drawer on 768-1024px, bottom-sheet with Framer Motion drag-to-dismiss on <768px
+- [✓] 2026-03-14 00:54 - Add loading state: Suspense fallback component with animated loading indicator shown while Canvas initializes
+- [✓] 2026-03-14 00:57 - Wire everything together in `src/App.tsx`: Scene + InfoPanel + NavigationGuide + HelpButton + AccessibilityToggle + QualityToggle + TransitionIndicator + conditional TextModeAccordion
+- [✓] 2026-03-14 00:58 - Add localStorage initialization: check hasSeenGuide on app load, show NavigationGuide on first visit
+- [✓] 2026-03-14 01:05 - Test full interaction flow: hover → click → dissolve → panel → close → restore
+- [✓] 2026-03-14 01:08 - Test keyboard navigation: Tab, Enter, Escape, Arrow keys, R reset
+- [✓] 2026-03-14 01:13 - Test responsive layouts on desktop, tablet, mobile viewport sizes
+- [✓] 2026-03-14 01:18 - Test text-only mode: all content accessible without WebGL
+- [✓] 2026-03-14 01:21 - Test prefers-reduced-motion: animations disabled
+- [✓] 2026-03-14 01:22 - Create `vercel.json` or `netlify.toml` with static build config pointing to `consciousness-sphere/dist`
+- [✓] 2026-03-14 01:24 - Run `npm run build` in `consciousness-sphere/` and verify no TypeScript or build errors
+- [✓] 2026-03-14 01:26 - Deploy to Vercel or Netlify
