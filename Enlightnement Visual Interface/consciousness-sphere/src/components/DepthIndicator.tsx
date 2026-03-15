@@ -124,7 +124,7 @@ export default function DepthIndicator() {
           {/* Divider */}
           <div style={{ width: '80%', height: 1, background: dividerCol, margin: '0.1rem 0' }} />
 
-          {/* Row 3: emotions */}
+          {/* Row 3: level names */}
           {activeLayer.levels.length > 0 && (
             <span style={{
               fontFamily: 'DM Sans, system-ui, sans-serif',
@@ -136,6 +136,22 @@ export default function DepthIndicator() {
               whiteSpace: 'nowrap',
             }}>
               {activeLayer.levels.join('  ·  ')}
+            </span>
+          )}
+
+          {/* Row 4: associated emotional states */}
+          {activeLayer.levelData.length > 0 && (
+            <span style={{
+              fontFamily: 'DM Sans, system-ui, sans-serif',
+              fontSize: '0.66rem',
+              fontWeight: 300,
+              letterSpacing: '0.07em',
+              color: 'rgba(244,240,234,0.38)',
+              textAlign: 'center',
+              whiteSpace: 'nowrap',
+              fontStyle: 'italic',
+            }}>
+              {activeLayer.levelData.map((e) => e.emotionalState).join('  ·  ')}
             </span>
           )}
         </motion.div>

@@ -15,14 +15,16 @@ interface Props {
 export default function BottomBar({ getCameraRef: _getCameraRef }: Props) {
   const [navOpen, setNavOpen] = useState(false);
 
-  const dissolvedLayers    = useExplorerStore((s) => s.dissolvedLayers);
-  const dissolveLayer      = useExplorerStore((s) => s.dissolveLayer);
-  const resetDissolved     = useExplorerStore((s) => s.resetDissolved);
-  const selectedLayer      = useExplorerStore((s) => s.selectedLayer);
-  const selectLayer        = useExplorerStore((s) => s.selectLayer);
-  const requestCameraReset = useExplorerStore((s) => s.requestCameraReset);
-  const cameraDepthLayer   = useExplorerStore((s) => s.cameraDepthLayer);
-  const bp                 = useBreakpoint();
+  const dissolvedLayers     = useExplorerStore((s) => s.dissolvedLayers);
+  const dissolveLayer       = useExplorerStore((s) => s.dissolveLayer);
+  const setDissolvedLayers  = useExplorerStore((s) => s.setDissolvedLayers);
+  const resetDissolved      = useExplorerStore((s) => s.resetDissolved);
+  const selectedLayer       = useExplorerStore((s) => s.selectedLayer);
+  const selectLayer         = useExplorerStore((s) => s.selectLayer);
+  const requestCameraReset  = useExplorerStore((s) => s.requestCameraReset);
+  const requestCameraMoveTo = useExplorerStore((s) => s.requestCameraMoveTo);
+  const cameraDepthLayer    = useExplorerStore((s) => s.cameraDepthLayer);
+  const bp                  = useBreakpoint();
 
   // Active = outermost undissolved layer
   const active    = SORTED.find((l) => !dissolvedLayers.includes(l.id)) ?? null;
@@ -36,19 +38,20 @@ export default function BottomBar({ getCameraRef: _getCameraRef }: Props) {
 
   const navSorted = [...layers].sort((a, b) => b.id - a.id);
 
-  // Jump to a layer: dissolve all layers with larger radius (outer layers) so the
-  // target layer becomes the active (outermost visible) sphere, then open its panel.
+  // Jump to a layer: set dissolved to exactly the outer layers (restoring target if needed).
   const jumpToLayer = (layerId: number) => {
-    // SORTED is sorted outermost → innermost (by descending radius).
-    // Layers that are "outside" the target have a higher index in SORTED
-    // only if they have larger radius. Layers with id > targetId are outermost (radius is bigger).
-    // Actually layers.ts id 7 = outermost (r=22), id 1 = innermost (r=2.2).
-    // So to jump to layer X, dissolve all layers where id > X (higher id = outer sphere).
-    SORTED.forEach((l) => {
-      if (l.id > layerId && !dissolvedLayers.includes(l.id)) {
-        dissolveLayer(l.id);
-      }
-    });
+    // id 7 = outermost, id 1 = innermost. Outer layers = id > layerId.
+    // Replace dissolvedLayers entirely so previously-dissolved layers can be restored.
+    const outerIds = SORTED.filter((l) => l.id > layerId).map((l) => l.id);
+    setDissolvedLayers(outerIds);
+
+    // Move camera to comfortably view the target sphere.
+    const targetLayer = SORTED.find((l) => l.id === layerId);
+    if (targetLayer) {
+      const z = Math.max(targetLayer.radius * 1.8, 5);
+      requestCameraMoveTo([0, targetLayer.radius * 0.12, z]);
+    }
+
     selectLayer(layerId);
     setNavOpen(false);
   };

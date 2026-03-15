@@ -10,6 +10,7 @@ import HelpButton from './components/HelpButton';
 import TransitionIndicator from './components/TransitionIndicator';
 import DepthIndicator from './components/DepthIndicator';
 import BottomBar from './components/BottomBar';
+import ChartPanel from './components/ChartPanel';
 import useExplorerStore from './stores/useExplorerStore';
 import { useBreakpoint } from './hooks/useBreakpoint';
 import './styles/globals.css';
@@ -55,6 +56,8 @@ function App() {
           </div>
           <InfoPanel />
           <TransitionIndicator />
+          {/* Left: dynamic consciousness chart for active layer */}
+          <ChartPanel />
           {/* Top-center: static flat header showing active dimension */}
           <DepthIndicator />
           {/* Bottom: Dissolve button (left) + Jump to Layer (right) on same row */}

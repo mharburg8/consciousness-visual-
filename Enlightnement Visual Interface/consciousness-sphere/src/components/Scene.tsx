@@ -34,11 +34,13 @@ interface CameraTrackerProps {
 /** Tracks camera depth, triggers dissolution, and handles camera-reset animation */
 function CameraTracker({ controlsRef }: CameraTrackerProps) {
   const { camera } = useThree();
-  const setCameraDepthLayer = useExplorerStore((s) => s.setCameraDepthLayer);
-  const dissolveLayer       = useExplorerStore((s) => s.dissolveLayer);
-  const dissolvedLayers     = useExplorerStore((s) => s.dissolvedLayers);
-  const cameraResetPending  = useExplorerStore((s) => s.cameraResetPending);
-  const clearCameraReset    = useExplorerStore((s) => s.clearCameraReset);
+  const setCameraDepthLayer  = useExplorerStore((s) => s.setCameraDepthLayer);
+  const dissolveLayer        = useExplorerStore((s) => s.dissolveLayer);
+  const dissolvedLayers      = useExplorerStore((s) => s.dissolvedLayers);
+  const cameraResetPending   = useExplorerStore((s) => s.cameraResetPending);
+  const clearCameraReset     = useExplorerStore((s) => s.clearCameraReset);
+  const targetCameraPosition = useExplorerStore((s) => s.targetCameraPosition);
+  const clearTargetCamera    = useExplorerStore((s) => s.clearTargetCamera);
   const prevLayerRef = useRef<number | null>(null);
 
   // Sorted layers for active detection
@@ -57,6 +59,18 @@ function CameraTracker({ controlsRef }: CameraTrackerProps) {
       return;
     }
 
+    // ── Jump-to-layer camera move ─────────────────────────────────────────
+    if (targetCameraPosition) {
+      camera.position.set(...targetCameraPosition);
+      camera.lookAt(0, 0, 0);
+      if (controlsRef.current) {
+        controlsRef.current.target.set(0, 0, 0);
+        controlsRef.current.update();
+      }
+      clearTargetCamera();
+      return;
+    }
+
     // ── Depth tracking ───────────────────────────────────────────────────
     const dist = camera.position.length();
     let current: number | null = null;
@@ -70,11 +84,11 @@ function CameraTracker({ controlsRef }: CameraTrackerProps) {
       setCameraDepthLayer(current);
     }
 
-    // Auto-dissolve: when camera enters a sphere to within 55% of its radius
-    const activeLayer = sortedLayers.find(
-      (l) => !dissolvedLayers.includes(l.id)
-    );
-    if (activeLayer && dist < activeLayer.radius * 0.55) {
+    // Auto-dissolve: when camera enters a sphere to within 55% of its radius.
+    // Never dissolve the last remaining layer — the user must press "Return to Beginning".
+    const undissolved = sortedLayers.filter((l) => !dissolvedLayers.includes(l.id));
+    const activeLayer = undissolved[0] ?? null;
+    if (activeLayer && undissolved.length > 1 && dist < activeLayer.radius * 0.55) {
       dissolveLayer(activeLayer.id);
     }
   });
@@ -209,9 +223,9 @@ export default function Scene() {
 
           <EffectComposer>
             <Bloom
-              intensity={isHighQuality ? 2.2 : 0.9}
-              luminanceThreshold={0.12}
-              luminanceSmoothing={0.92}
+              intensity={isHighQuality ? 1.4 : 0.7}
+              luminanceThreshold={0.38}
+              luminanceSmoothing={0.85}
               blendFunction={BlendFunction.ADD}
               mipmapBlur
             />

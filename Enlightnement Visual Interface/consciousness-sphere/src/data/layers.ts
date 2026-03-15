@@ -11,6 +11,18 @@ export const layers: Layer[] = [
     radius: 22,
     opacity: 0.55,
     chartLocation: 'Hell → Purgatory',
+    levelData: [
+      { name: 'Pride',  emotionalState: 'Scorn',       viewOfLife: 'Demanding',      keyToTranscending: 'Use energy positively' },
+      { name: 'Anger',  emotionalState: 'Hate',         viewOfLife: 'Antagonistic',   keyToTranscending: 'Use energy positively' },
+      { name: 'Desire', emotionalState: 'Craving',      viewOfLife: 'Disappointing',  keyToTranscending: 'I am worthy' },
+      { name: 'Fear',   emotionalState: 'Anxiety',      viewOfLife: 'Frightening',    keyToTranscending: 'Overcome fear' },
+      { name: 'Grief',  emotionalState: 'Regret',       viewOfLife: 'Tragic',         keyToTranscending: 'Overcome fear' },
+      { name: 'Apathy', emotionalState: 'Despair',      viewOfLife: 'Hopeless',       keyToTranscending: 'Take action' },
+      { name: 'Guilt',  emotionalState: 'Blame',        viewOfLife: 'Evil',           keyToTranscending: 'Take action' },
+      { name: 'Shame',  emotionalState: 'Humiliation',  viewOfLife: 'Miserable',      keyToTranscending: 'Take action' },
+    ],
+    whatWeExperience: 'Hyper-activity · Suffering · Inaction',
+    stateOfConsciousness: 'Mental Illnesses · Suffering · Drug Intoxication · Near-Death Experiences',
     facets: {
       experience: `You might recognize this as the grip of fear — the body tightening, the breath going shallow, the mind scanning for what could go wrong. Everything feels conditional here. Safety seems like something you have to earn or defend, and the world appears fundamentally threatening or unjust.
 
@@ -63,6 +75,14 @@ You start to want something other than just relief. A flicker of actual interest
     radius: 17,
     opacity: 0.45,
     chartLocation: 'In Between',
+    levelData: [
+      { name: 'Acceptance',  emotionalState: 'Forgiveness', viewOfLife: 'Harmonious',   keyToTranscending: 'Stepping out with passion' },
+      { name: 'Willingness', emotionalState: 'Optimism',    viewOfLife: 'Hopeful',      keyToTranscending: 'Purpose' },
+      { name: 'Neutrality',  emotionalState: 'Trust',       viewOfLife: 'Satisfactory', keyToTranscending: 'Purpose' },
+      { name: 'Courage',     emotionalState: 'Affirmation', viewOfLife: 'Feasible',     keyToTranscending: 'Appreciation' },
+    ],
+    whatWeExperience: 'Happiness & Productivity',
+    stateOfConsciousness: 'Flow · In The Zone · Getting By · Narrowed Consciousness',
     facets: {
       experience: `Something has shifted. You're no longer purely in survival mode — there's a quality of engagement now, even with difficulty. Courage doesn't mean the fear is gone. It means you move anyway. You've noticed that moving through fear doesn't destroy you, and that discovery changes something.
 
@@ -115,6 +135,13 @@ Occasionally you catch a glimpse of something beneath the doing — a quiet that
     radius: 13,
     opacity: 0.38,
     chartLocation: 'Paradise',
+    levelData: [
+      { name: 'Inner Love',          emotionalState: 'Reverence',     viewOfLife: 'Benign',     keyToTranscending: 'Meaning' },
+      { name: 'Inner Wisdom',        emotionalState: 'Reverence',     viewOfLife: 'Benign',     keyToTranscending: 'Meaning' },
+      { name: 'Inner Light / Reason', emotionalState: 'Understanding', viewOfLife: 'Meaningful', keyToTranscending: 'Meaning' },
+    ],
+    whatWeExperience: 'Rising recognition of the sacred',
+    stateOfConsciousness: 'Super Mind · Transcendence · Higher Mind',
     facets: {
       experience: `Identification has shifted from personal achievement to something larger. You find yourself drawn toward understanding — not just information, but the kind of understanding that changes how you see. Books, contemplative study, sitting with teachers, long conversations that go somewhere real — these feel nourishing in a way that entertainment or distraction doesn't quite touch.
 
@@ -165,6 +192,12 @@ The practices you've relied on begin to feel less necessary. Not because you're 
     radius: 9.5,
     opacity: 0.30,
     chartLocation: 'Paradise → Heaven',
+    levelData: [
+      { name: 'Presence / Peace', emotionalState: 'Bliss',    viewOfLife: 'Perfect',  keyToTranscending: 'Allowing' },
+      { name: 'Oneness / Joy',    emotionalState: 'Serenity', viewOfLife: 'Complete', keyToTranscending: 'Allowing' },
+    ],
+    whatWeExperience: 'Synchronicity & Extraordinary Outcomes',
+    stateOfConsciousness: 'Illuminated Mind',
     facets: {
       experience: `Something has changed with joy. It is no longer something you achieve or receive — it arises from the nature of awareness itself. A bird lands on a branch. The afternoon light shifts. Someone tells a small truth. And something in you responds with what can only be called joy, without particular reason.
 
@@ -215,6 +248,12 @@ The boundary between meditation and ordinary life has become hard to locate. The
     radius: 6.5,
     opacity: 0.22,
     chartLocation: 'Heaven',
+    levelData: [
+      { name: 'Awareness',   emotionalState: 'Ineffable', viewOfLife: 'Is', keyToTranscending: 'Allowing' },
+      { name: 'Non-Duality', emotionalState: 'Ineffable', viewOfLife: 'Is', keyToTranscending: 'Allowing' },
+    ],
+    whatWeExperience: 'Synchronicity & Extraordinary Outcomes',
+    stateOfConsciousness: 'Over Mind',
     facets: {
       experience: `"I AM" — not "I am happy" or "I am confused" or "I am a person with a history." Just: I AM. The pure fact of existing, prior to any content. This is not a philosophy — it's a direct recognition, available in any moment, that awareness is the constant in every experience you have ever had.
 
@@ -263,6 +302,12 @@ What remains is simple: awareness, ordinary life, this moment. And the recogniti
     radius: 4,
     opacity: 0.14,
     chartLocation: 'Heaven',
+    levelData: [
+      { name: 'Divine Grace & Love', emotionalState: 'Ineffable', viewOfLife: 'Is', keyToTranscending: '—' },
+      { name: 'The Great Void',      emotionalState: 'Ineffable', viewOfLife: 'Is', keyToTranscending: '—' },
+    ],
+    whatWeExperience: 'Synchronicity & Extraordinary Outcomes',
+    stateOfConsciousness: 'Enlightenment',
     facets: {
       experience: `The Great Void is not empty. This is the first thing to say, and the most important. Emptiness in the ordinary sense implies absence. But the Void is more like the silence in which all sound arises — not the absence of sound, but the ground that makes sound possible. It is the fullness from which everything appears.
 
@@ -315,6 +360,12 @@ What remains is very simple. This. Just this. The simple suchness of whatever is
     radius: 2.2,
     opacity: 0.08,
     chartLocation: 'Pure Consciousness',
+    levelData: [
+      { name: 'Full Consciousness',  emotionalState: 'Ineffable', viewOfLife: 'Is', keyToTranscending: '—' },
+      { name: 'Supra-Causal Truth',  emotionalState: 'Ineffable', viewOfLife: 'Is', keyToTranscending: '—' },
+    ],
+    whatWeExperience: 'Purpose effortlessly supported',
+    stateOfConsciousness: 'Pure Consciousness',
     facets: {
       experience: `Prior to causation means: before the chain of cause and effect begins. Before the first arising. Not a state that comes after others, but the ground that was never not here — the source that doesn't depend on anything else for its existence, because it is existence itself. Not a kind or quality of existence. The simple, irreducible fact of being as such.
 

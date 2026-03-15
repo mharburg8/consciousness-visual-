@@ -1,5 +1,12 @@
 export type FacetKey = 'experience' | 'veil' | 'dissolving' | 'signs';
 
+export interface LevelEntry {
+  name: string;
+  emotionalState: string;
+  viewOfLife: string;
+  keyToTranscending: string;
+}
+
 export interface LayerFacets {
   experience: string;   // "What You Experience Here"
   veil: string;         // "What Keeps This Layer Opaque"
@@ -17,6 +24,9 @@ export interface Layer {
   radius: number;       // 7 | 6 | 5 | 4 | 3 | 2 | 1.2
   opacity: number;      // 0.55 (outer) → 0.08 (inner)
   chartLocation: string;
+  levelData: LevelEntry[];
+  whatWeExperience?: string;
+  stateOfConsciousness?: string;
   facets: LayerFacets;
 }
 
@@ -44,4 +54,9 @@ export interface ExplorerStore {
   cameraResetPending: boolean;
   requestCameraReset: () => void;
   clearCameraReset: () => void;
+  targetCameraPosition: [number, number, number] | null;
+  requestCameraMoveTo: (position: [number, number, number]) => void;
+  clearTargetCamera: () => void;
+  dissolveManyLayers: (ids: number[]) => void;
+  setDissolvedLayers: (ids: number[]) => void;
 }

@@ -92,7 +92,7 @@ export default function InfoPanel() {
                   // Left edge: layer-colored accent bar
                   borderLeft: `3px solid ${layer.hexColor}`,
                   boxShadow: `inset 4px 0 24px ${layer.hexColor}22, -8px 0 40px rgba(0,0,0,0.5)`,
-                  background: `linear-gradient(160deg, color-mix(in srgb, ${layer.hexColor} 10%, #080b18) 0%, #080b18 180px)`,
+                  background: `linear-gradient(160deg, color-mix(in srgb, ${layer.hexColor} 22%, #080b18) 0%, #080b18 200px)`,
                   backdropFilter: 'blur(24px)',
                   WebkitBackdropFilter: 'blur(24px)',
                 }
@@ -106,7 +106,7 @@ export default function InfoPanel() {
                   zIndex: 40,
                   borderTop: `2px solid ${layer.hexColor}`,
                   boxShadow: `0 -4px 40px ${layer.hexColor}33`,
-                  background: `linear-gradient(180deg, color-mix(in srgb, ${layer.hexColor} 12%, #080b18) 0%, #080b18 100px)`,
+                  background: `linear-gradient(180deg, color-mix(in srgb, ${layer.hexColor} 20%, #080b18) 0%, #080b18 120px)`,
                   backdropFilter: 'blur(24px)',
                   WebkitBackdropFilter: 'blur(24px)',
                   borderRadius: '16px 16px 0 0',
@@ -201,7 +201,7 @@ export default function InfoPanel() {
               fontSize: '0.75rem', letterSpacing: '0.06em',
               color: 'rgba(180,174,190,0.65)',
               lineHeight: 1.8,
-              marginBottom: '1.25rem',
+              marginBottom: '0.4rem',
             }}>
               {layer.levels.map((lvl, i) => (
                 <span key={lvl}>
@@ -212,6 +212,27 @@ export default function InfoPanel() {
                 </span>
               ))}
             </div>
+
+            {/* Emotional states — aligned with levels */}
+            {layer.levelData.length > 0 && (
+              <div style={{
+                fontFamily: 'DM Sans, system-ui, sans-serif',
+                fontSize: '0.68rem', letterSpacing: '0.05em',
+                color: 'rgba(180,174,190,0.42)',
+                lineHeight: 1.8,
+                fontStyle: 'italic',
+                marginBottom: '1.25rem',
+              }}>
+                {layer.levelData.map((e, i) => (
+                  <span key={e.name}>
+                    {e.emotionalState}
+                    {i < layer.levelData.length - 1 && (
+                      <span style={{ margin: '0 0.35em', color: `${layer.hexColor}44` }}>·</span>
+                    )}
+                  </span>
+                ))}
+              </div>
+            )}
 
             {/* Divider with layer color */}
             <div style={{
