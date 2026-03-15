@@ -139,7 +139,7 @@ function Lighting() {
       {/* Soft ambient — just enough to read the outer layers */}
       <ambientLight intensity={0.06} color="#0d1030" />
       {/* Chromatic accent lights tuned to layer palette */}
-      <pointLight position={[14, 6, 10]}  intensity={0.8} color="#4a1a2a" distance={40} decay={2} />
+      <pointLight position={[14, 6, 10]}  intensity={0.8} color="#8b2a3a" distance={40} decay={2} />
       <pointLight position={[-14, -6, -10]} intensity={0.6} color="#1a5c4a" distance={40} decay={2} />
       <pointLight position={[0, -14, 12]} intensity={0.5} color="#8b6914" distance={36} decay={2} />
       <pointLight position={[0,  14, -10]} intensity={0.4} color="#7a8fa8" distance={32} decay={2} />

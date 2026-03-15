@@ -7,7 +7,7 @@ export const layers: Layer[] = [
     subtitle: 'The densest veil — survival, separation, reactivity',
     levels: ['Shame', 'Guilt', 'Apathy', 'Grief', 'Fear', 'Desire', 'Anger', 'Pride'],
     color: 'var(--layer-7)',
-    hexColor: '#4a1a2a',
+    hexColor: '#8b2a3a',
     radius: 22,
     opacity: 0.55,
     chartLocation: 'Hell → Purgatory',
