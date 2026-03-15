@@ -39,30 +39,22 @@ function CameraTracker({ controlsRef }: CameraTrackerProps) {
   const dissolvedLayers     = useExplorerStore((s) => s.dissolvedLayers);
   const cameraResetPending  = useExplorerStore((s) => s.cameraResetPending);
   const clearCameraReset    = useExplorerStore((s) => s.clearCameraReset);
-  const prevLayerRef        = useRef<number | null>(null);
-  const resetTarget         = useRef(new THREE.Vector3(...DEFAULT_CAMERA_POSITION));
-  const zeroVec             = useRef(new THREE.Vector3(0, 0, 0));
+  const prevLayerRef = useRef<number | null>(null);
 
   // Sorted layers for active detection
   const sortedLayers = [...layers].sort((a, b) => b.radius - a.radius);
 
   useFrame(() => {
-    // ── Camera reset animation ───────────────────────────────────────────
+    // ── Camera reset: teleport instantly so OrbitControls can't fight it ──
     if (cameraResetPending) {
-      camera.position.lerp(resetTarget.current, 0.06);
+      camera.position.set(...DEFAULT_CAMERA_POSITION);
+      camera.lookAt(0, 0, 0);
       if (controlsRef.current) {
-        controlsRef.current.target.lerp(zeroVec.current, 0.06);
+        controlsRef.current.target.set(0, 0, 0);
         controlsRef.current.update();
       }
-      if (camera.position.distanceTo(resetTarget.current) < 0.15) {
-        camera.position.copy(resetTarget.current);
-        if (controlsRef.current) {
-          controlsRef.current.target.copy(zeroVec.current);
-          controlsRef.current.update();
-        }
-        clearCameraReset();
-      }
-      return; // skip depth tracking while animating
+      clearCameraReset();
+      return;
     }
 
     // ── Depth tracking ───────────────────────────────────────────────────

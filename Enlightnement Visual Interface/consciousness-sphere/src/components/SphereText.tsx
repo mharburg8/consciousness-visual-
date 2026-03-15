@@ -72,9 +72,12 @@ function buildTexture(layer: Layer): THREE.CanvasTexture {
   const LINE_BODY  = BODY_SIZE  * 1.65;
 
   const lum           = luminance(layer.hexColor);
-  const isBright      = lum > 0.42;
-  const shadowColor   = isBright ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.95)';
-  const bodyTextColor = isBright ? '#0d0d1a'                : '#d0ccda';
+  // Only layers 1 & 2 (lum > 0.65) are truly bright enough to need dark text.
+  // Layer 3 (I AM Presence, #7a8fa8, lum≈0.55) is medium-blue — use white text
+  // because the background is dark space, not the sphere color itself.
+  const isBright      = lum > 0.65;
+  const shadowColor   = isBright ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.95)';
+  const bodyTextColor = isBright ? '#0a0a14'               : '#e8e4f0';
 
   // Soft dark scrim over each column for bright spheres
   if (isBright) {
@@ -102,7 +105,7 @@ function buildTexture(layer: Layer): THREE.CanvasTexture {
     ctx.shadowColor  = shadowColor;
     ctx.shadowBlur   = 16;
     ctx.font         = `500 ${TITLE_SIZE}px Georgia, 'Times New Roman', serif`;
-    ctx.fillStyle    = isBright ? '#0d0d1a' : facet.color;
+    ctx.fillStyle    = isBright ? '#0a0a14' : facet.color;
     ctx.globalAlpha  = 0.96;
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'alphabetic';
@@ -116,7 +119,7 @@ function buildTexture(layer: Layer): THREE.CanvasTexture {
     y += TITLE_SIZE * 0.15;
     if (y <= V_END) {
       ctx.save();
-      ctx.strokeStyle = isBright ? 'rgba(13,13,26,0.35)' : facet.color;
+      ctx.strokeStyle = isBright ? 'rgba(10,10,20,0.35)' : facet.color;
       ctx.globalAlpha = 0.30;
       ctx.lineWidth   = 2;
       ctx.beginPath();
