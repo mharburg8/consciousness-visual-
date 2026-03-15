@@ -128,6 +128,7 @@ describe('SphereLayer — prefers-reduced-motion', () => {
     opacity: 0.45,
     chartLocation: 'Hell → Purgatory',
     levels: ['Shame', 'Guilt'],
+    levelData: [],
     facets: {
       experience: 'test experience',
       veil: 'test veil',
