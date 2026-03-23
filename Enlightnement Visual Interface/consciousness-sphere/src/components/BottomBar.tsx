@@ -23,7 +23,7 @@ export default function BottomBar({ getCameraRef: _getCameraRef }: Props) {
   const requestCameraReset  = useExplorerStore((s) => s.requestCameraReset);
   const requestCameraMoveTo = useExplorerStore((s) => s.requestCameraMoveTo);
   const cameraDepthLayer    = useExplorerStore((s) => s.cameraDepthLayer);
-  const bp                  = useBreakpoint();
+  useBreakpoint();
 
   // Active = outermost undissolved layer
   const active    = SORTED.find((l) => !dissolvedLayers.includes(l.id)) ?? null;

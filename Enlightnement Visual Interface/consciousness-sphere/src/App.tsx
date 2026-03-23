@@ -21,7 +21,7 @@ function App() {
     () => localStorage.getItem(INTRO_KEY) !== 'true'
   );
   const isTextMode = useExplorerStore((s) => s.isTextMode);
-  const bp = useBreakpoint();
+  useBreakpoint();
 
   const handleEnter = () => {
     localStorage.setItem(INTRO_KEY, 'true');
