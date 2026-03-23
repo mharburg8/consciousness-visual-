@@ -1,0 +1,9 @@
+[build]
+  base    = "consciousness-sphere"
+  command = "npm run build"
+  publish = "consciousness-sphere/dist"
+
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200

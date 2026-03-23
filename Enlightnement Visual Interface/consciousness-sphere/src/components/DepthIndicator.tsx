@@ -3,8 +3,7 @@ import useExplorerStore from '../stores/useExplorerStore';
 import { layers } from '../data/layers';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 
-const SORTED      = [...layers].sort((a, b) => b.radius - a.radius);
-const PANEL_WIDTH = 420;
+const SORTED = [...layers].sort((a, b) => b.radius - a.radius);
 
 function hexToRgba(hex: string, alpha: number): string {
   const r = parseInt(hex.slice(1, 3), 16);
@@ -22,16 +21,14 @@ function luminance(hex: string): number {
 
 export default function DepthIndicator() {
   const dissolvedLayers = useExplorerStore((s) => s.dissolvedLayers);
-  const selectedLayer   = useExplorerStore((s) => s.selectedLayer);
   const bp              = useBreakpoint();
 
+  // activeLayer is null when all dissolved OR when only innermost (Layer 1) remains
+  // and black hole is active — both cases show the void/pure consciousness header.
   const activeLayer = SORTED.find((l) => !dissolvedLayers.includes(l.id)) ?? null;
+  const showVoidHeader = !activeLayer || dissolvedLayers.length >= SORTED.length - 1;
 
   const isMobile    = bp === 'mobile';
-  const isPanelOpen = selectedLayer !== null;
-  const leftOffset  = bp === 'desktop' && isPanelOpen ? -(PANEL_WIDTH / 2) : 0;
-
-  if (!activeLayer) return null;
 
   // Always white text — the sphere-tinted frosted card provides enough contrast
   // for all layers, including the lightest (Great Void, Supra-Causal).
@@ -39,6 +36,128 @@ export default function DepthIndicator() {
   const textPrimary = '#f4f0ea';
   const textDim     = 'rgba(244,240,234,0.62)';
   const dividerCol  = 'rgba(244,240,234,0.16)';
+
+  // When all layers dissolved OR Layer 1 (black hole) is active — show Pure Consciousness header
+  if (showVoidHeader) {
+    return (
+      <AnimatePresence mode="wait">
+      <div
+        key="pure-consciousness-wrapper"
+        style={{
+          position: 'fixed',
+          top: '0.9rem',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 30,
+          pointerEvents: 'none',
+        }}
+      >
+        <motion.div
+          key="pure-consciousness"
+          initial={{ opacity: 0, y: -16, scale: 0.96 }}
+          animate={{ opacity: 1, y: 0,   scale: 1    }}
+          exit={{ opacity: 0, y: -16, scale: 0.96 }}
+          transition={{ duration: 0.55, ease: [0.2, 0, 0.1, 1] }}
+          style={{
+            background: 'rgba(255,255,255,0.06)',
+            backdropFilter: 'blur(28px)',
+            WebkitBackdropFilter: 'blur(28px)',
+            borderRadius: '16px',
+            border: '1px solid rgba(255,255,255,0.18)',
+            boxShadow: '0 4px 32px rgba(255,255,255,0.10), inset 0 1px 0 rgba(255,255,255,0.12)',
+            padding: isMobile ? '0.38rem 0.9rem 0.42rem' : '0.7rem 1.8rem 0.8rem',
+            minWidth: isMobile ? 0 : '300px',
+            maxWidth: isMobile ? 'min(88vw, 360px)' : '640px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: isMobile ? '0.1rem' : '0.18rem',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
+            <motion.span
+              animate={{ opacity: [0.3, 1, 0.3] }}
+              transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
+              style={{
+                display: 'inline-block',
+                width: 7, height: 7, borderRadius: '50%', flexShrink: 0,
+                background: '#ffffff',
+              }}
+            />
+            <span style={{
+              fontFamily: 'DM Sans, system-ui, sans-serif',
+              fontSize: isMobile ? '0.52rem' : '0.64rem',
+              fontWeight: 600,
+              letterSpacing: '0.20em',
+              textTransform: 'uppercase',
+              color: 'rgba(255,255,255,0.65)',
+              whiteSpace: 'nowrap',
+            }}>
+              Pure Consciousness · Pure Consciousness
+            </span>
+          </div>
+
+          {!isMobile && (
+            <span style={{
+              fontFamily: 'Cormorant Garamond, Georgia, serif',
+              fontSize: '1.55rem',
+              fontWeight: 400,
+              fontStyle: 'italic',
+              letterSpacing: '0.01em',
+              color: '#ffffff',
+              textAlign: 'center',
+              lineHeight: 1.15,
+              whiteSpace: 'nowrap',
+            }}>
+              Pure Consciousness
+            </span>
+          )}
+          {isMobile && (
+            <span style={{
+              fontFamily: 'Cormorant Garamond, Georgia, serif',
+              fontSize: '0.95rem',
+              fontWeight: 400,
+              fontStyle: 'italic',
+              color: '#ffffff',
+              textAlign: 'center',
+              lineHeight: 1.15,
+            }}>
+              Pure Consciousness
+            </span>
+          )}
+
+          <div style={{ width: '80%', height: 1, background: 'rgba(255,255,255,0.15)', margin: '0.1rem 0' }} />
+
+          <span style={{
+            fontFamily: 'DM Sans, system-ui, sans-serif',
+            fontSize: isMobile ? '0.6rem' : '0.78rem',
+            fontWeight: 400,
+            letterSpacing: '0.09em',
+            color: 'rgba(255,255,255,0.55)',
+            textAlign: 'center',
+            whiteSpace: 'nowrap',
+          }}>
+            Supra-Causal Truth  ·  Full Consciousness
+          </span>
+
+          {!isMobile && (
+            <span style={{
+              fontFamily: 'DM Sans, system-ui, sans-serif',
+              fontSize: '0.66rem',
+              fontWeight: 300,
+              letterSpacing: '0.07em',
+              color: 'rgba(255,255,255,0.28)',
+              textAlign: 'center',
+              fontStyle: 'italic',
+            }}>
+              Ineffable  ·  Ineffable
+            </span>
+          )}
+        </motion.div>
+      </div>
+      </AnimatePresence>
+    );
+  }
 
   const colonIdx = activeLayer.name.indexOf(':');
   const dimLabel = colonIdx >= 0 ? activeLayer.name.slice(0, colonIdx).trim() : activeLayer.name;
@@ -52,9 +171,8 @@ export default function DepthIndicator() {
         style={{
           position: 'fixed',
           top: '0.9rem',
-          left: `calc(50% + ${leftOffset}px)`,
+          left: '50%',
           transform: 'translateX(-50%)',
-          transition: 'left 0.5s cubic-bezier(0.32, 0.72, 0, 1)',
           zIndex: 30,
           pointerEvents: 'none',
         }}

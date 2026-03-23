@@ -5,8 +5,7 @@ import { layers } from '../data/layers';
 import { useBreakpoint } from '../hooks/useBreakpoint';
 import * as THREE from 'three';
 
-const PANEL_WIDTH = 420;
-const SORTED      = [...layers].sort((a, b) => b.radius - a.radius);
+const SORTED = [...layers].sort((a, b) => b.radius - a.radius);
 
 interface Props {
   getCameraRef: () => { camera: THREE.Camera; controls: { target: THREE.Vector3; update: () => void } } | null;
@@ -31,10 +30,6 @@ export default function BottomBar({ getCameraRef: _getCameraRef }: Props) {
   const activeIdx = active ? SORTED.findIndex((l) => l.id === active.id) : -1;
   const next      = SORTED[activeIdx + 1] ?? null;
   const allDissolved = dissolvedLayers.length >= SORTED.length;
-
-  // Center in scene area (shift left when panel is open on desktop)
-  const isPanelOpen = selectedLayer !== null;
-  const leftOffset  = bp === 'desktop' && isPanelOpen ? -(PANEL_WIDTH / 2) : 0;
 
   const navSorted = [...layers].sort((a, b) => b.id - a.id);
 
@@ -61,9 +56,8 @@ export default function BottomBar({ getCameraRef: _getCameraRef }: Props) {
       style={{
         position: 'fixed',
         bottom: '1.5rem',
-        left: `calc(50% + ${leftOffset}px)`,
+        left: '50%',
         transform: 'translateX(-50%)',
-        transition: 'left 0.5s cubic-bezier(0.32, 0.72, 0, 1)',
         zIndex: 35,
         display: 'flex',
         alignItems: 'flex-end',
@@ -208,25 +202,6 @@ export default function BottomBar({ getCameraRef: _getCameraRef }: Props) {
                 minWidth: '220px',
               }}
             >
-              <button
-                onClick={() => { selectLayer(null); setNavOpen(false); }}
-                style={{
-                  background: 'transparent', border: 'none', cursor: 'pointer',
-                  padding: '0.5rem 0.9rem',
-                  display: 'flex', alignItems: 'center', gap: '0.7rem',
-                  borderRadius: '8px', transition: 'background 0.15s',
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.06)')}
-                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-              >
-                <span style={{ width: 7, height: 7, borderRadius: '50%', flexShrink: 0, background: '#fff8e8', boxShadow: '0 0 6px #fff8e8bb' }} />
-                <span style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '0.875rem', fontWeight: 300, fontStyle: 'italic', color: 'rgba(240,236,230,0.8)', letterSpacing: '0.02em' }}>
-                  The Center · Pure Awareness
-                </span>
-              </button>
-
-              <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '2px 0.5rem' }} />
-
               {navSorted.map((layer) => {
                 const isActive = selectedLayer === layer.id || cameraDepthLayer === layer.id;
                 return (
@@ -255,6 +230,25 @@ export default function BottomBar({ getCameraRef: _getCameraRef }: Props) {
                   </button>
                 );
               })}
+
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '2px 0.5rem' }} />
+
+              <button
+                onClick={() => { selectLayer(null); setNavOpen(false); }}
+                style={{
+                  background: 'transparent', border: 'none', cursor: 'pointer',
+                  padding: '0.5rem 0.9rem',
+                  display: 'flex', alignItems: 'center', gap: '0.7rem',
+                  borderRadius: '8px', transition: 'background 0.15s',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.06)')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+              >
+                <span style={{ width: 7, height: 7, borderRadius: '50%', flexShrink: 0, background: '#fff8e8', boxShadow: '0 0 6px #fff8e8bb' }} />
+                <span style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '0.875rem', fontWeight: 300, fontStyle: 'italic', color: 'rgba(240,236,230,0.8)', letterSpacing: '0.02em' }}>
+                  The Center · Pure Consciousness
+                </span>
+              </button>
             </motion.div>
           )}
         </AnimatePresence>

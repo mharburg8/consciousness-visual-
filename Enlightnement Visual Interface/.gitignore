@@ -1,0 +1,14 @@
+.vercel
+*.png
+*.jpg
+*.jpeg
+*.gz
+*.zip
+*.exe
+*.bat
+*.sh
+changes.txt
+context.txt
+.ralphy/
+.claude/
+node_modules/

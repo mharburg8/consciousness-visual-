@@ -4,7 +4,6 @@ import AccessibilityToggle from './components/AccessibilityToggle';
 import QualityToggle from './components/QualityToggle';
 import TextModeAccordion from './components/TextModeAccordion';
 import Scene from './components/Scene';
-import InfoPanel from './components/InfoPanel';
 import NavigationGuide from './components/NavigationGuide';
 import HelpButton from './components/HelpButton';
 import TransitionIndicator from './components/TransitionIndicator';
@@ -16,14 +15,12 @@ import { useBreakpoint } from './hooks/useBreakpoint';
 import './styles/globals.css';
 
 const INTRO_KEY = 'consciousness-sphere-intro-seen';
-const PANEL_WIDTH = 420;
 
 function App() {
   const [showIntro, setShowIntro] = useState(
     () => localStorage.getItem(INTRO_KEY) !== 'true'
   );
-  const isTextMode    = useExplorerStore((s) => s.isTextMode);
-  const selectedLayer = useExplorerStore((s) => s.selectedLayer);
+  const isTextMode = useExplorerStore((s) => s.isTextMode);
   const bp = useBreakpoint();
 
   const handleEnter = () => {
@@ -31,17 +28,8 @@ function App() {
     setShowIntro(false);
   };
 
-  const isPanelOpen = selectedLayer !== null;
-  const sceneStyle =
-    bp === 'desktop' && isPanelOpen
-      ? {
-          width: `calc(100% - ${PANEL_WIDTH}px)`,
-          height: '100%',
-          transition: 'width 0.5s cubic-bezier(0.32, 0.72, 0, 1)',
-        }
-      : { width: '100%', height: '100%', transition: 'width 0.5s cubic-bezier(0.32, 0.72, 0, 1)' };
-
-  const hideCornerControls = isPanelOpen && bp !== 'desktop';
+  const sceneStyle = { width: '100%', height: '100%' };
+  const hideCornerControls = false;
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
@@ -54,7 +42,6 @@ function App() {
           <div style={sceneStyle}>
             <Scene />
           </div>
-          <InfoPanel />
           <TransitionIndicator />
           {/* Left: dynamic consciousness chart for active layer */}
           <ChartPanel />

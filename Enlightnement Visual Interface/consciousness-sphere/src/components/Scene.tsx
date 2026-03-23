@@ -11,7 +11,7 @@ import { layers } from '../data/layers';
 
 const LAYER_IDS = layers.map((l) => l.id);
 // Camera starts far back so you see the entire outer sphere
-export const DEFAULT_CAMERA_POSITION: [number, number, number] = [0, 3, 32];
+export const DEFAULT_CAMERA_POSITION: [number, number, number] = [0, 4, 58];
 
 // Sorted layer radii — used for depth detection (outermost first)
 const DEPTH_THRESHOLDS = [...layers]
@@ -41,12 +41,24 @@ function CameraTracker({ controlsRef }: CameraTrackerProps) {
   const clearCameraReset     = useExplorerStore((s) => s.clearCameraReset);
   const targetCameraPosition = useExplorerStore((s) => s.targetCameraPosition);
   const clearTargetCamera    = useExplorerStore((s) => s.clearTargetCamera);
-  const prevLayerRef = useRef<number | null>(null);
+  const prevLayerRef         = useRef<number | null>(null);
+
+  // Smooth zoom-in on each layer dissolve
+  const prevDissolvedCount = useRef(0);
+  const smoothTargetDist   = useRef<number | null>(null);
+  const dirVec             = useRef(new THREE.Vector3());
+
+  // Cancel auto-zoom the moment the user scrolls/pinches
+  useEffect(() => {
+    const cancel = () => { smoothTargetDist.current = null; };
+    window.addEventListener('wheel', cancel, { passive: true });
+    return () => window.removeEventListener('wheel', cancel);
+  }, []);
 
   // Sorted layers for active detection
   const sortedLayers = [...layers].sort((a, b) => b.radius - a.radius);
 
-  useFrame(() => {
+  useFrame((_state, delta) => {
     // ── Camera reset: teleport instantly so OrbitControls can't fight it ──
     if (cameraResetPending) {
       camera.position.set(...DEFAULT_CAMERA_POSITION);
@@ -55,6 +67,8 @@ function CameraTracker({ controlsRef }: CameraTrackerProps) {
         controlsRef.current.target.set(0, 0, 0);
         controlsRef.current.update();
       }
+      prevDissolvedCount.current = 0;
+      smoothTargetDist.current   = null;
       clearCameraReset();
       return;
     }
@@ -69,6 +83,27 @@ function CameraTracker({ controlsRef }: CameraTrackerProps) {
       }
       clearTargetCamera();
       return;
+    }
+
+    // ── Smooth zoom-in on dissolve ────────────────────────────────────────
+    if (dissolvedLayers.length > prevDissolvedCount.current) {
+      prevDissolvedCount.current = dissolvedLayers.length;
+      const currentDist = camera.position.length();
+      // Pull camera to 82% of current distance — subtle, layered effect
+      smoothTargetDist.current = Math.max(currentDist * 0.82, 4.5);
+    }
+
+    if (smoothTargetDist.current !== null) {
+      const currentDist = camera.position.length();
+      const diff = smoothTargetDist.current - currentDist;
+      if (Math.abs(diff) > 0.06) {
+        dirVec.current.copy(camera.position).normalize();
+        const newDist = currentDist + diff * Math.min(1, delta * 6.0);
+        camera.position.copy(dirVec.current.multiplyScalar(newDist));
+        if (controlsRef.current) controlsRef.current.update();
+      } else {
+        smoothTargetDist.current = null;
+      }
     }
 
     // ── Depth tracking ───────────────────────────────────────────────────
@@ -90,6 +125,21 @@ function CameraTracker({ controlsRef }: CameraTrackerProps) {
     const activeLayer = undissolved[0] ?? null;
     if (activeLayer && undissolved.length > 1 && dist < activeLayer.radius * 0.55) {
       dissolveLayer(activeLayer.id);
+    }
+
+    // Graduated zoom inside the void — grows heavier the closer to the dot
+    if (controlsRef.current) {
+      const inVoid = dissolvedLayers.length >= sortedLayers.length - 1;
+      if (inVoid && dist < 2.5) {
+        controlsRef.current.zoomSpeed   = 0.07;   // near the dot — feels like gravity
+        controlsRef.current.minDistance = 0.04;   // allow filling screen with the dot
+      } else if (inVoid && dist < 8) {
+        controlsRef.current.zoomSpeed   = 0.20;   // crossing the void
+        controlsRef.current.minDistance = 0.04;
+      } else {
+        controlsRef.current.zoomSpeed   = 0.7;    // normal
+        controlsRef.current.minDistance = 0.5;
+      }
     }
   });
 

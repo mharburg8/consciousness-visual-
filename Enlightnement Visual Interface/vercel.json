@@ -1,0 +1,6 @@
+{
+  "buildCommand": "cd consciousness-sphere && npm install && npm run build",
+  "outputDirectory": "consciousness-sphere/dist",
+  "installCommand": "echo 'skip root install'",
+  "framework": null
+}
