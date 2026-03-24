@@ -202,7 +202,7 @@ export default function Scene() {
   const isHighQuality = useExplorerStore((s) => s.isHighQuality);
 
   return (
-    <div style={{ width: '100%', height: '100%', background: '#03050c' }}>
+    <div style={{ width: '100%', height: '100%', minHeight: '100dvh', background: '#03050c' }}>
       <Suspense
         fallback={
           <div style={{
@@ -277,7 +277,7 @@ export default function Scene() {
               luminanceThreshold={0.38}
               luminanceSmoothing={0.85}
               blendFunction={BlendFunction.ADD}
-              mipmapBlur
+              mipmapBlur={isHighQuality}
             />
             <Vignette
               offset={0.25}

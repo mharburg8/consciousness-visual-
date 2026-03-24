@@ -18,6 +18,9 @@ function readHasSeenGuide(): boolean {
   }
 }
 
+// Mobile devices default to low quality to prevent WebGL crashes
+const isMobile = typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0;
+
 const useExplorerStore = create<ExplorerStore>()(
   persist(
     (set) => ({
@@ -27,7 +30,7 @@ const useExplorerStore = create<ExplorerStore>()(
       activeFacet: 'experience' as FacetKey,
       isGuideOpen: !readHasSeenGuide(),
       isTextMode: false,
-      isHighQuality: true,
+      isHighQuality: !isMobile,
       cameraDepthLayer: null,
       dissolvedLayers: [],
 
