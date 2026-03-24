@@ -1,5 +1,5 @@
 import { useRef, useMemo, useEffect } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import type { Layer } from '../types';
 import useExplorerStore from '../stores/useExplorerStore';
@@ -73,6 +73,8 @@ export default function SphereLayer({ layer }: Props) {
   // Snapshot of sphere-surface positions captured when fission begins
   const dissolveInitPos     = useRef<Float32Array | null>(null);
 
+  const { gl } = useThree();
+
   const dissolvedLayers = useExplorerStore((s) => s.dissolvedLayers);
   const selectedLayer   = useExplorerStore((s) => s.selectedLayer);
   const hoveredLayer    = useExplorerStore((s) => s.hoveredLayer);
@@ -133,11 +135,14 @@ export default function SphereLayer({ layer }: Props) {
   }, [layer.hexColor]);
 
   // Per-layer shader material (own uTime + uOpacity uniforms)
+  // Multiply uPointScale by DPR so particles are the same apparent CSS-pixel size
+  // on high-DPR mobile screens as they are on 1× desktop displays.
+  const dpr = gl.getPixelRatio();
   const material = useMemo(() => new THREE.ShaderMaterial({
     uniforms: {
       uTime:       { value: 0 },
       uOpacity:    { value: 0 },
-      uPointScale: { value: 55 + layer.radius * 9 },
+      uPointScale: { value: (55 + layer.radius * 9) * dpr },
     },
     vertexShader:   VERT,
     fragmentShader: FRAG,
@@ -145,7 +150,7 @@ export default function SphereLayer({ layer }: Props) {
     depthWrite:     false,
     blending:       THREE.AdditiveBlending,
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [layer.id]);  // stable per layer
+  }), [layer.id, dpr]);  // stable per layer; dpr changes only on window move across monitors
 
   const hitGeo = useMemo(
     () => new THREE.SphereGeometry(layer.radius, 16, 16),
