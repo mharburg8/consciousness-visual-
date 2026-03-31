@@ -24,7 +24,7 @@ const COUNT_HQ: Record<number, number> = {
   7: 9500, 6: 8200, 5: 7000, 4: 5800, 3: 4600, 2: 3200, 1: 2000,
 };
 
-// Vertex shader — size-attenuated points
+// ── Desktop GL_POINTS shaders ────────────────────────────────────────────────
 const VERT = /* glsl */`
   attribute vec3 color;
   varying vec3 vColor;
@@ -33,12 +33,11 @@ const VERT = /* glsl */`
   void main() {
     vColor = color;
     vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-    gl_PointSize = uPointScale / -mvPosition.z;
+    gl_PointSize = max(2.0, uPointScale / -mvPosition.z);
     gl_Position = projectionMatrix * mvPosition;
   }
 `;
 
-// Fragment shader — bright core + pulsing ring (from gl_PointCoord)
 const FRAG = /* glsl */`
   varying vec3 vColor;
   uniform float uTime;
@@ -64,14 +63,21 @@ interface Props { layer: Layer }
 
 export default function SphereLayer({ layer }: Props) {
   const groupRef  = useRef<THREE.Group>(null);
+
+  // Desktop GL_POINTS refs
   const pointsRef = useRef<THREE.Points>(null);
   const posAttr   = useRef<THREE.BufferAttribute | null>(null);
   const colAttr   = useRef<THREE.BufferAttribute | null>(null);
 
+  // Mobile InstancedMesh ref
+  const instRef = useRef<THREE.InstancedMesh>(null);
+
   const dissolveRef         = useRef<DissolveState>('idle');
   const dissolveProgressRef = useRef(0);
-  // Snapshot of sphere-surface positions captured when fission begins
   const dissolveInitPos     = useRef<Float32Array | null>(null);
+
+  // Fade ref for mobile material opacity (lerped per frame)
+  const mobileOpacity = useRef(0);
 
   const { gl } = useThree();
 
@@ -108,10 +114,10 @@ export default function SphereLayer({ layer }: Props) {
 
   const count = isHighQuality
     ? (COUNT_HQ[layer.id] ?? 1600)
-    : Math.floor((COUNT_HQ[layer.id] ?? 1600) * 0.30);
+    : Math.floor((COUNT_HQ[layer.id] ?? 1600) * 0.35);
 
-  // Current positions for lerp (mutable Float32Array — no GC alloc per frame)
-  const curPos = useMemo(() => {
+  // Generate initial sphere positions
+  const initPositions = useMemo(() => {
     const arr = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
       const theta = Math.random() * Math.PI * 2;
@@ -123,34 +129,60 @@ export default function SphereLayer({ layer }: Props) {
     return arr;
   }, [count, layer.radius]);
 
-  // GPU-uploaded position & color buffers
-  const posArray = useMemo(() => new Float32Array(count * 3), [count]);
-  const colArray = useMemo(() => new Float32Array(count * 3), [count]);
+  const curPos   = useMemo(() => new Float32Array(initPositions), [initPositions]);
+  const posArray = useMemo(() => new Float32Array(initPositions), [initPositions]);
+  const colArray = useMemo(() => {
+    const arr = new Float32Array(count * 3);
+    const c = new THREE.Color(layer.hexColor);
+    for (let i = 0; i < count; i++) {
+      arr[i * 3] = c.r; arr[i * 3 + 1] = c.g; arr[i * 3 + 2] = c.b;
+    }
+    return arr;
+  }, [count, layer.hexColor]);
 
-  // Base HSL of layer color
   const layerHSL = useMemo(() => {
     const hsl = { h: 0, s: 0, l: 0 };
     new THREE.Color(layer.hexColor).getHSL(hsl);
     return hsl;
   }, [layer.hexColor]);
 
-  // Per-layer shader material (own uTime + uOpacity uniforms)
-  // Multiply uPointScale by DPR so particles are the same apparent CSS-pixel size
-  // on high-DPR mobile screens as they are on 1× desktop displays.
+  // ── Desktop: GL_POINTS shader material ────────────────────────────────────
   const dpr = gl.getPixelRatio();
-  const material = useMemo(() => new THREE.ShaderMaterial({
-    uniforms: {
-      uTime:       { value: 0 },
-      uOpacity:    { value: 0 },
-      uPointScale: { value: (55 + layer.radius * 9) * dpr },
-    },
-    vertexShader:   VERT,
-    fragmentShader: FRAG,
-    transparent:    true,
-    depthWrite:     false,
-    blending:       THREE.AdditiveBlending,
+  const pointsMaterial = useMemo(() => {
+    if (!isHighQuality) return null;  // not used on mobile
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        uTime:       { value: 0 },
+        uOpacity:    { value: 0 },
+        uPointScale: { value: (55 + layer.radius * 9) * dpr },
+      },
+      vertexShader:   VERT,
+      fragmentShader: FRAG,
+      transparent:    true,
+      depthWrite:     false,
+      blending:       THREE.AdditiveBlending,
+    });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [layer.id, dpr]);  // stable per layer; dpr changes only on window move across monitors
+  }, [layer.id, dpr, isHighQuality]);
+
+  // ── Mobile: InstancedMesh geometry + material ─────────────────────────────
+  const instanceGeo = useMemo(() => {
+    if (isHighQuality) return null;
+    return new THREE.IcosahedronGeometry(0.055, 0);  // 12 faces, very cheap
+  }, [isHighQuality]);
+
+  const instanceMat = useMemo(() => {
+    if (isHighQuality) return null;
+    return new THREE.MeshBasicMaterial({
+      transparent: true,
+      depthWrite:  false,
+      blending:    THREE.AdditiveBlending,
+      opacity:     0,
+    });
+  }, [isHighQuality]);
+
+  // Scratch objects for mobile instance updates (allocated once)
+  const tmpColor  = useMemo(() => new THREE.Color(), []);
 
   const hitGeo = useMemo(
     () => new THREE.SphereGeometry(layer.radius, 16, 16),
@@ -159,14 +191,49 @@ export default function SphereLayer({ layer }: Props) {
 
   const fp = FLOW[layer.id] ?? FLOW[4];
 
+  // ── Initialize mobile InstancedMesh with positions on mount ───────────────
+  useEffect(() => {
+    const mesh = instRef.current;
+    if (!mesh || isHighQuality) return;
+    const mat = new Float32Array(16);
+    const c = new THREE.Color(layer.hexColor);
+    for (let i = 0; i < count; i++) {
+      // Identity matrix with position in the translation column
+      mat[0] = 1; mat[1] = 0; mat[2] = 0; mat[3] = 0;
+      mat[4] = 0; mat[5] = 1; mat[6] = 0; mat[7] = 0;
+      mat[8] = 0; mat[9] = 0; mat[10] = 1; mat[11] = 0;
+      mat[12] = initPositions[i * 3];
+      mat[13] = initPositions[i * 3 + 1];
+      mat[14] = initPositions[i * 3 + 2];
+      mat[15] = 1;
+      mesh.setMatrixAt(i, new THREE.Matrix4().fromArray(mat));
+      mesh.setColorAt(i, c);
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [count, isHighQuality]);
+
   useFrame(({ clock }, delta) => {
     const t    = clock.getElapsedTime();
     const grp  = groupRef.current;
-    const pts  = pointsRef.current;
-    const pA   = posAttr.current;
-    const cA   = colAttr.current;
-    const mat  = material;
-    if (!grp || !pts || !pA || !cA) return;
+    if (!grp) return;
+
+    // Determine which rendering path
+    const usePoints = isHighQuality;
+    const useInst   = !isHighQuality;
+
+    // Desktop refs
+    const pA = posAttr.current;
+    const cA = colAttr.current;
+    const mat = pointsMaterial;
+
+    // Mobile ref
+    const inst = instRef.current;
+
+    // Guard: need at least one rendering path ready
+    if (usePoints && (!pointsRef.current || !pA || !cA || !mat)) return;
+    if (useInst && !inst) return;
 
     // ── Fission Dissolve ─────────────────────────────────────────────────────
     if (dissolveRef.current === 'dissolving') {
@@ -174,7 +241,6 @@ export default function SphereLayer({ layer }: Props) {
       grp.scale.setScalar(1);
       grp.position.set(0, 0, 0);
 
-      // Snapshot sphere positions on the first dissolve frame
       if (!dissolveInitPos.current) {
         dissolveInitPos.current = new Float32Array(curPos);
       }
@@ -183,28 +249,32 @@ export default function SphereLayer({ layer }: Props) {
       dissolveProgressRef.current = Math.min(1, dissolveProgressRef.current + delta * 0.45);
       const cycle = dissolveProgressRef.current;
 
-      // Fission timing curves
       const defCycle = Math.min(cycle, 0.42);
       const cs       = (defCycle - 0.38) * 8.0;
-      const tStretch = Math.exp(-(cs * cs));                              // neck compression
+      const tStretch = Math.exp(-(cs * cs));
 
       const cp     = (cycle - 0.15) * 10.0;
-      const tPulse = Math.exp(-(cp * cp));                                // energy flash
+      const tPulse = Math.exp(-(cp * cp));
 
-      const tSplit = Math.max(0, cycle - 0.42) * 2.0;                    // hemisphere separation
+      const tSplit = Math.max(0, cycle - 0.42) * 2.0;
       const tFade  = Math.max(0, 1.0 - Math.max(0, cycle - 0.80) * 5.0);
 
       const nuclScale  = layer.radius;
       const yieldForce = layer.radius * 22;
       const { h: bH, s: bS, l: bL } = layerHSL;
 
-      mat.uniforms.uOpacity.value = tFade * (isActive ? 0.92 : 0.18);
-      mat.uniforms.uTime.value    = t;
+      const targetOp = tFade * (isActive ? 0.92 : 0.18);
+      if (usePoints && mat) {
+        mat.uniforms.uOpacity.value = targetOp;
+        mat.uniforms.uTime.value    = t;
+      }
+      if (useInst && instanceMat) {
+        instanceMat.opacity = targetOp;
+      }
 
       for (let i = 0; i < count; i++) {
-        const u   = i / count;
+        const u = i / count;
 
-        // Fibonacci sphere direction (matches nuclear_fission.jsx)
         const phi   = Math.acos(1.0 - 2.0 * ((i * 0.754877) % 1.0));
         const theta = Math.PI * 2.0 * i * 1.61803398875;
         const dirX  = Math.sin(phi) * Math.cos(theta);
@@ -215,22 +285,16 @@ export default function SphereLayer({ layer }: Props) {
         let lHue = bH, lSat = bS, lLit = bL;
 
         if (u < 0.80) {
-          // ── Nuclear body: fission split ──────────────────────────────────
-          // Use snapshot sphere position projected to a local coordinate
           const sx = initPos[i * 3];
           const sy = initPos[i * 3 + 1];
           const sz = initPos[i * 3 + 2];
-          const side    = sx >= 0 ? 1.0 : -1.0;
+          const side = sx >= 0 ? 1.0 : -1.0;
 
-          // Neck compression: squeeze equatorial particles together
-          const neck    = Math.max(0, 1.0 - Math.abs(sx) / (nuclScale * 1.2));
-          const ny      = sy - sy * neck * tStretch * 0.75;
-          const nz      = sz - sz * neck * tStretch * 0.75;
+          const neck = Math.max(0, 1.0 - Math.abs(sx) / (nuclScale * 1.2));
+          const ny   = sy - sy * neck * tStretch * 0.75;
+          const nz   = sz - sz * neck * tStretch * 0.75;
+          const cShift = side * tStretch * nuclScale * 0.85;
 
-          // Center shift + hemisphere separation
-          const cShift  = side * tStretch * nuclScale * 0.85;
-
-          // Spin fragments around Y axis
           let rotX = sx, rotY = ny;
           if (tSplit > 0) {
             const spin = tSplit * 6.0 * side;
@@ -244,61 +308,43 @@ export default function SphereLayer({ layer }: Props) {
           py = rotY;
           pz = nz;
 
-          // Heat scatter on separation
           const heat = tSplit * 2.5;
-          px += dirX * heat;
-          py += dirY * heat;
-          pz += dirZ * heat;
+          px += dirX * heat; py += dirY * heat; pz += dirZ * heat;
 
-          // Color: layer hue, brighter during pulse + stretch
           lHue = ((bH - tStretch * 0.05 - tSplit * 0.08) % 1 + 1) % 1;
           lLit = Math.min(1, bL * (0.8 + tPulse * 1.2 + tStretch * 0.4));
           lSat = Math.min(1, bS * (0.9 + tPulse * 0.3));
 
         } else if (u < 0.85) {
-          // ── Prompt neutrons: fast radial scatter ─────────────────────────
-          if (cycle < 0.42) {
-            lLit = 0;
-          } else {
+          if (cycle < 0.42) { lLit = 0; }
+          else {
             const flashT = cycle - 0.42;
             const dist   = flashT * yieldForce * 3.5;
-            const scX    = dirX + Math.sin(i * 11.1) * 0.4;
-            const scY    = dirY + Math.cos(i * 13.3) * 0.4;
-            const scZ    = dirZ + Math.sin(i * 17.7) * 0.4;
-            px = scX * dist; py = scY * dist; pz = scZ * dist;
-            // Brighter desaturated flash — toward white
+            px = (dirX + Math.sin(i * 11.1) * 0.4) * dist;
+            py = (dirY + Math.cos(i * 13.3) * 0.4) * dist;
+            pz = (dirZ + Math.sin(i * 17.7) * 0.4) * dist;
             lHue = bH;
             lSat = Math.max(0, bS * (1.0 - flashT * 2));
             lLit = Math.min(1, bL * 2.5 * Math.max(0, 0.9 - flashT * 1.5));
           }
-
         } else {
-          // ── Gamma shockwave: expanding shell ─────────────────────────────
-          if (cycle < 0.42) {
-            lLit = 0;
-          } else {
+          if (cycle < 0.42) { lLit = 0; }
+          else {
             const flashT = cycle - 0.42;
             const rWave  = Math.pow(flashT * 2.2, 0.4) * yieldForce * 1.3;
             const noise  = Math.sin(i * 12.3 + t * 15.0) * nuclScale * 0.5;
-            const spread = rWave + noise;
-            px = dirX * spread; py = dirY * spread; pz = dirZ * spread;
-            // Shockwave: shift hue toward cooler, fade quickly
+            px = dirX * (rWave + noise); py = dirY * (rWave + noise); pz = dirZ * (rWave + noise);
             lHue = ((bH + 0.12) % 1 + 1) % 1;
             lSat = Math.max(0, bS * (1.0 - flashT));
             lLit = Math.min(1, bL * Math.max(0, 1.2 - flashT * 2.8));
           }
         }
 
-        // Lerp curPos toward fission target (fast lerp for drama)
         curPos[i * 3]     += (px - curPos[i * 3])     * 0.14;
         curPos[i * 3 + 1] += (py - curPos[i * 3 + 1]) * 0.14;
         curPos[i * 3 + 2] += (pz - curPos[i * 3 + 2]) * 0.14;
 
-        posArray[i * 3]     = curPos[i * 3];
-        posArray[i * 3 + 1] = curPos[i * 3 + 1];
-        posArray[i * 3 + 2] = curPos[i * 3 + 2];
-
-        // Color (inline HSL → RGB)
+        // Color (inline HSL -> RGB)
         const fs = Math.min(1, Math.abs(lSat));
         const fl = Math.min(1, Math.abs(lLit * tFade));
         let r0 = fl, g0 = fl, b0 = fl;
@@ -309,13 +355,15 @@ export default function SphereLayer({ layer }: Props) {
           g0 = hue2rgb(p0, q, lHue);
           b0 = hue2rgb(p0, q, lHue - 1/3);
         }
-        colArray[i * 3]     = r0;
-        colArray[i * 3 + 1] = g0;
-        colArray[i * 3 + 2] = b0;
+        colArray[i * 3] = r0; colArray[i * 3 + 1] = g0; colArray[i * 3 + 2] = b0;
+
+        if (usePoints) {
+          posArray[i * 3] = curPos[i * 3]; posArray[i * 3 + 1] = curPos[i * 3 + 1]; posArray[i * 3 + 2] = curPos[i * 3 + 2];
+        }
       }
 
-      pA.needsUpdate = true;
-      cA.needsUpdate = true;
+      if (usePoints && pA && cA) { pA.needsUpdate = true; cA.needsUpdate = true; }
+      if (useInst && inst) { flushInstances(inst, curPos, colArray, count, tmpColor); }
 
       if (cycle >= 1) { dissolveRef.current = 'dissolved'; grp.visible = false; }
       return;
@@ -324,7 +372,11 @@ export default function SphereLayer({ layer }: Props) {
 
     // ── Visibility ──────────────────────────────────────────────────────────
     grp.visible = isActive || isGhost;
-    if (!grp.visible) { mat.uniforms.uOpacity.value = 0; return; }
+    if (!grp.visible) {
+      if (usePoints && mat) mat.uniforms.uOpacity.value = 0;
+      if (useInst) mobileOpacity.current = 0;
+      return;
+    }
 
     grp.position.set(0, 0, 0);
     grp.scale.setScalar(prefersReduced ? 1 : 1 + 0.005 * Math.sin(t * 0.8 + layer.id));
@@ -336,32 +388,38 @@ export default function SphereLayer({ layer }: Props) {
     } else if (isGhost) {
       targetOp = 0.13;
     }
-    mat.uniforms.uOpacity.value  += (targetOp - mat.uniforms.uOpacity.value)  * 0.06;
-    mat.uniforms.uTime.value      = t;
 
-    // ── Skip per-particle update in reduced motion ──────────────────────────
-    if (prefersReduced) return;
+    if (usePoints && mat) {
+      mat.uniforms.uOpacity.value += (targetOp - mat.uniforms.uOpacity.value) * 0.06;
+      mat.uniforms.uTime.value     = t;
+    }
+    if (useInst && instanceMat) {
+      mobileOpacity.current += (targetOp - mobileOpacity.current) * 0.06;
+      instanceMat.opacity = mobileOpacity.current;
+    }
 
-    // ── Living Fibonacci Sphere (adapted from shap.jsx) ──────────────────────
+    if (prefersReduced) {
+      // Still push positions to mobile instances even with reduced motion
+      if (useInst && inst) flushInstances(inst, curPos, colArray, count, tmpColor);
+      return;
+    }
+
+    // ── Living Fibonacci Sphere ─────────────────────────────────────────────
     const { spin, wave, pulse } = fp;
     const safeN  = count > 0 ? count : 1;
     const { h: bH, s: bS, l: bL } = layerHSL;
     const lerpK  = isGhost ? 0.04 : 0.08;
-    // Golden angle constant (2π / φ²)
     const GOLDEN = 2.3999632297;
 
     for (let i = 0; i < count; i++) {
       const ratio = i / safeN;
-
-      // Fibonacci sphere: uniformly distribute points using golden angle spiral
-      const fy    = 1.0 - ratio * 2.0;           // y: +1 → -1
-      const fr    = Math.sqrt(1.0 - fy * fy);    // xz radius at this y
-      const theta = GOLDEN * i + t * spin;        // golden angle + slow rotation
+      const fy    = 1.0 - ratio * 2.0;
+      const fr    = Math.sqrt(1.0 - fy * fy);
+      const theta = GOLDEN * i + t * spin;
 
       const baseX = Math.cos(theta) * fr;
       const baseZ = Math.sin(theta) * fr;
 
-      // Breathing wave deformation — unique phase per particle
       const waveAmt = Math.sin(i * 0.05 + t * pulse) * (wave * layer.radius);
       const finalR  = layer.radius + waveAmt;
 
@@ -369,17 +427,17 @@ export default function SphereLayer({ layer }: Props) {
       const ty = fy    * finalR;
       const tz = baseZ * finalR;
 
-      // Lerp current position toward Fibonacci target
       curPos[i * 3]     += (tx - curPos[i * 3])     * lerpK;
       curPos[i * 3 + 1] += (ty - curPos[i * 3 + 1]) * lerpK;
       curPos[i * 3 + 2] += (tz - curPos[i * 3 + 2]) * lerpK;
 
-      posArray[i * 3]     = curPos[i * 3];
-      posArray[i * 3 + 1] = curPos[i * 3 + 1];
-      posArray[i * 3 + 2] = curPos[i * 3 + 2];
+      if (usePoints) {
+        posArray[i * 3]     = curPos[i * 3];
+        posArray[i * 3 + 1] = curPos[i * 3 + 1];
+        posArray[i * 3 + 2] = curPos[i * 3 + 2];
+      }
 
-      // Color: layer hue ± small drift, lightness pulses with wave
-      const hShift  = Math.sin(i * 0.008) * 0.04;         // ±4% hue drift per particle
+      const hShift  = Math.sin(i * 0.008) * 0.04;
       const litMult = 0.7 + 0.55 * ((waveAmt / (wave * layer.radius + 0.001)) * 0.5 + 0.5)
                           + 0.15 * Math.sin(i * 0.02 + t * pulse);
       const satMult = 0.80 + 0.20 * Math.sin(ratio * Math.PI * 2 + t * 0.4);
@@ -388,7 +446,6 @@ export default function SphereLayer({ layer }: Props) {
       const fs = Math.min(1, Math.abs(bS * satMult));
       const fl = Math.min(1, Math.abs(bL * litMult));
 
-      // Inline HSL → RGB
       let r0 = fl, g0 = fl, b0 = fl;
       if (fs > 0) {
         const q  = fl < 0.5 ? fl * (1 + fs) : fl + fs - fl * fs;
@@ -397,38 +454,47 @@ export default function SphereLayer({ layer }: Props) {
         g0 = hue2rgb(p0, q, fh);
         b0 = hue2rgb(p0, q, fh - 1/3);
       }
-      colArray[i * 3]     = r0;
-      colArray[i * 3 + 1] = g0;
-      colArray[i * 3 + 2] = b0;
+      colArray[i * 3] = r0; colArray[i * 3 + 1] = g0; colArray[i * 3 + 2] = b0;
     }
 
-    pA.needsUpdate = true;
-    cA.needsUpdate = true;
+    if (usePoints && pA && cA) { pA.needsUpdate = true; cA.needsUpdate = true; }
+    if (useInst && inst) { flushInstances(inst, curPos, colArray, count, tmpColor); }
   });
 
   return (
     <group ref={groupRef} visible={isActive || isGhost}>
 
-      {/* ── 4D flow particle sphere ── */}
-      <points ref={pointsRef}>
-        <bufferGeometry>
-          <bufferAttribute
-            ref={(attr) => { posAttr.current = attr; }}
-            attach="attributes-position"
-            array={posArray}
-            itemSize={3}
-            count={count}
-          />
-          <bufferAttribute
-            ref={(attr) => { colAttr.current = attr; }}
-            attach="attributes-color"
-            array={colArray}
-            itemSize={3}
-            count={count}
-          />
-        </bufferGeometry>
-        <primitive object={material} attach="material" />
-      </points>
+      {/* ── Desktop: GL_POINTS particle sphere ── */}
+      {isHighQuality && pointsMaterial && (
+        <points ref={pointsRef}>
+          <bufferGeometry>
+            <bufferAttribute
+              ref={(attr) => { posAttr.current = attr; }}
+              attach="attributes-position"
+              array={posArray}
+              itemSize={3}
+              count={count}
+            />
+            <bufferAttribute
+              ref={(attr) => { colAttr.current = attr; }}
+              attach="attributes-color"
+              array={colArray}
+              itemSize={3}
+              count={count}
+            />
+          </bufferGeometry>
+          <primitive object={pointsMaterial} attach="material" />
+        </points>
+      )}
+
+      {/* ── Mobile: InstancedMesh (proven to work on iOS — same approach as BlackHole) ── */}
+      {!isHighQuality && instanceGeo && instanceMat && (
+        <instancedMesh
+          ref={instRef}
+          args={[instanceGeo, instanceMat, count]}
+          frustumCulled={false}
+        />
+      )}
 
       {/* ── Transparent hit mesh for pointer events ── */}
       <mesh
@@ -456,7 +522,35 @@ export default function SphereLayer({ layer }: Props) {
   );
 }
 
-// Inline HSL helper — avoids THREE.Color allocation per particle per frame
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Write curPos + colArray into an InstancedMesh's matrices and colors.
+ *  Writes directly to the typed arrays for performance — no Object3D overhead. */
+function flushInstances(
+  mesh: THREE.InstancedMesh,
+  pos: Float32Array,
+  col: Float32Array,
+  count: number,
+  tmpColor: THREE.Color,
+) {
+  const matrices = mesh.instanceMatrix.array as Float32Array;
+  for (let i = 0; i < count; i++) {
+    const off = i * 16;
+    // Identity rotation + unit scale, translation in column 3
+    matrices[off]     = 1; matrices[off + 1]  = 0; matrices[off + 2]  = 0; matrices[off + 3]  = 0;
+    matrices[off + 4] = 0; matrices[off + 5]  = 1; matrices[off + 6]  = 0; matrices[off + 7]  = 0;
+    matrices[off + 8] = 0; matrices[off + 9]  = 0; matrices[off + 10] = 1; matrices[off + 11] = 0;
+    matrices[off + 12] = pos[i * 3];
+    matrices[off + 13] = pos[i * 3 + 1];
+    matrices[off + 14] = pos[i * 3 + 2];
+    matrices[off + 15] = 1;
+
+    mesh.setColorAt(i, tmpColor.setRGB(col[i * 3], col[i * 3 + 1], col[i * 3 + 2]));
+  }
+  mesh.instanceMatrix.needsUpdate = true;
+  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+}
+
 function hue2rgb(p: number, q: number, t: number): number {
   if (t < 0) t += 1;
   if (t > 1) t -= 1;

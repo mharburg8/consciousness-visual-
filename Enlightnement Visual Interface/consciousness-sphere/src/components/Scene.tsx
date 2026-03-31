@@ -197,6 +197,33 @@ function Lighting() {
   );
 }
 
+// Extracted so we can call useThree() to detect WebGL2 support
+function PostProcessing({ isHighQuality }: { isHighQuality: boolean }) {
+  const { gl } = useThree();
+  // mipmapBlur needs WebGL2; enable it whenever the device supports it
+  const useMipmapBlur = isHighQuality || gl.capabilities.isWebGL2;
+  // On mobile (low quality) lower the threshold so dim particles still bloom
+  const threshold = isHighQuality ? 0.38 : 0.18;
+  const intensity = isHighQuality ? 1.4 : 1.1;
+
+  return (
+    <EffectComposer>
+      <Bloom
+        intensity={intensity}
+        luminanceThreshold={threshold}
+        luminanceSmoothing={0.85}
+        blendFunction={BlendFunction.ADD}
+        mipmapBlur={useMipmapBlur}
+      />
+      <Vignette
+        offset={0.25}
+        darkness={0.75}
+        blendFunction={BlendFunction.NORMAL}
+      />
+    </EffectComposer>
+  );
+}
+
 export default function Scene() {
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const isHighQuality = useExplorerStore((s) => s.isHighQuality);
@@ -271,20 +298,7 @@ export default function Scene() {
             <ConcentricSpheres />
           </Suspense>
 
-          <EffectComposer>
-            <Bloom
-              intensity={isHighQuality ? 1.4 : 0.7}
-              luminanceThreshold={0.38}
-              luminanceSmoothing={0.85}
-              blendFunction={BlendFunction.ADD}
-              mipmapBlur={isHighQuality}
-            />
-            <Vignette
-              offset={0.25}
-              darkness={0.75}
-              blendFunction={BlendFunction.NORMAL}
-            />
-          </EffectComposer>
+          <PostProcessing isHighQuality={isHighQuality} />
         </Canvas>
       </Suspense>
     </div>
