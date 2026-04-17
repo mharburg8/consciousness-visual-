@@ -23,6 +23,7 @@ export default function BottomBar({ getCameraRef: _getCameraRef }: Props) {
   const requestCameraReset  = useExplorerStore((s) => s.requestCameraReset);
   const requestCameraMoveTo = useExplorerStore((s) => s.requestCameraMoveTo);
   const cameraDepthLayer    = useExplorerStore((s) => s.cameraDepthLayer);
+  const enterPresenceMode   = useExplorerStore((s) => s.enterPresenceMode);
   useBreakpoint();
 
   // Active = outermost undissolved layer
@@ -65,6 +66,37 @@ export default function BottomBar({ getCameraRef: _getCameraRef }: Props) {
         pointerEvents: 'all',
       }}
     >
+      {/* ── FAR LEFT: Presence Mode entry ───────────────────────────────── */}
+      <motion.button
+        onClick={enterPresenceMode}
+        whileHover={{ scale: 1.04 }}
+        whileTap={{ scale: 0.96 }}
+        style={{
+          background: 'rgba(12,16,28,0.8)',
+          border: '1px solid rgba(201,168,124,0.25)',
+          borderRadius: '20px',
+          padding: '0.45rem 1.1rem',
+          cursor: 'pointer',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          whiteSpace: 'nowrap',
+          transition: 'border-color 0.2s',
+          fontFamily: 'DM Sans, system-ui, sans-serif',
+          fontSize: '0.68rem',
+          letterSpacing: '0.14em',
+          textTransform: 'uppercase',
+          color: 'rgba(201,168,124,0.8)',
+        }}
+        onMouseEnter={(e) => {
+          (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(201,168,124,0.55)';
+        }}
+        onMouseLeave={(e) => {
+          (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(201,168,124,0.25)';
+        }}
+      >
+        Presence Mode
+      </motion.button>
+
       {/* ── LEFT: Dissolve / Reset button ───────────────────────────────── */}
       <AnimatePresence mode="wait">
         {allDissolved ? (

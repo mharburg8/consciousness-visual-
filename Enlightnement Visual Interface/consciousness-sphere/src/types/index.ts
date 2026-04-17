@@ -33,6 +33,14 @@ export interface Layer {
   facets: LayerFacets;
 }
 
+export type AppMode = 'explore' | 'presence';
+
+export type PresencePhase =
+  | 'entry'       // not active
+  | 'questions'   // answering the orienting questions
+  | 'resonance'   // viewing the layer that resonated
+  | 'sitting';    // breathing / resting with the layer
+
 export interface ExplorerStore {
   selectedLayer: number | null;
   hoveredLayer: number | null;
@@ -43,6 +51,14 @@ export interface ExplorerStore {
   hasSeenGuide: boolean;
   cameraDepthLayer: number | null; // which sphere the camera is currently inside
   dissolvedLayers: number[];        // layers that have been dissolved away
+
+  // Presence mode
+  mode: AppMode;
+  presencePhase: PresencePhase;
+  presenceAnswers: number[];        // layer-id hints from each answered question
+  presenceQuestionIndex: number;    // 0-based index of current question
+  presenceResonantLayer: number | null;
+
   // actions
   selectLayer: (id: number | null) => void;
   setHoveredLayer: (id: number | null) => void;
@@ -62,4 +78,12 @@ export interface ExplorerStore {
   clearTargetCamera: () => void;
   dissolveManyLayers: (ids: number[]) => void;
   setDissolvedLayers: (ids: number[]) => void;
+
+  // presence actions
+  enterPresenceMode: () => void;
+  exitPresenceMode: () => void;
+  answerPresenceQuestion: (layerHint: number) => void;
+  setPresencePhase: (phase: PresencePhase) => void;
+  sitWithResonantLayer: () => void;
+  dissolveFromPresence: () => void;
 }

@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { FacetKey, ExplorerStore } from '../types';
+import { presenceQuestions, resonantLayerFrom } from '../data/presenceQuestions';
+import { layers } from '../data/layers';
 
 const STORAGE_KEY = 'consciousness-sphere-guide';
 
@@ -23,7 +25,7 @@ const isMobile = typeof navigator !== 'undefined' && navigator.maxTouchPoints > 
 
 const useExplorerStore = create<ExplorerStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       // Transient state
       selectedLayer: null,
       hoveredLayer: null,
@@ -33,6 +35,13 @@ const useExplorerStore = create<ExplorerStore>()(
       isHighQuality: !isMobile,
       cameraDepthLayer: null,
       dissolvedLayers: [],
+
+      // Presence mode state
+      mode: 'explore',
+      presencePhase: 'entry',
+      presenceAnswers: [],
+      presenceQuestionIndex: 0,
+      presenceResonantLayer: null,
 
       // Persisted state
       hasSeenGuide: readHasSeenGuide(),
@@ -62,6 +71,61 @@ const useExplorerStore = create<ExplorerStore>()(
       targetCameraPosition: null,
       requestCameraMoveTo: (position) => set({ targetCameraPosition: position }),
       clearTargetCamera:   () => set({ targetCameraPosition: null }),
+
+      // Presence actions
+      enterPresenceMode: () => set({
+        mode: 'presence',
+        presencePhase: 'questions',
+        presenceAnswers: [],
+        presenceQuestionIndex: 0,
+        presenceResonantLayer: null,
+      }),
+      exitPresenceMode: () => set({
+        mode: 'explore',
+        presencePhase: 'entry',
+        presenceAnswers: [],
+        presenceQuestionIndex: 0,
+        presenceResonantLayer: null,
+      }),
+      answerPresenceQuestion: (layerHint) => {
+        const { presenceAnswers, presenceQuestionIndex } = get();
+        const nextAnswers = [...presenceAnswers, layerHint];
+        const nextIndex = presenceQuestionIndex + 1;
+        if (nextIndex >= presenceQuestions.length) {
+          set({
+            presenceAnswers: nextAnswers,
+            presenceQuestionIndex: nextIndex,
+            presenceResonantLayer: resonantLayerFrom(nextAnswers),
+            presencePhase: 'resonance',
+          });
+        } else {
+          set({
+            presenceAnswers: nextAnswers,
+            presenceQuestionIndex: nextIndex,
+          });
+        }
+      },
+      setPresencePhase: (phase) => set({ presencePhase: phase }),
+      sitWithResonantLayer: () => set({ presencePhase: 'sitting' }),
+      dissolveFromPresence: () => {
+        const { presenceResonantLayer } = get();
+        if (presenceResonantLayer == null) return;
+        // Dissolve all layers OUTSIDE the resonant one so it becomes the active shell.
+        const outerIds = layers
+          .filter((l) => l.id > presenceResonantLayer)
+          .map((l) => l.id);
+        const target = layers.find((l) => l.id === presenceResonantLayer);
+        set({
+          mode: 'explore',
+          presencePhase: 'entry',
+          dissolvedLayers: outerIds,
+          selectedLayer: presenceResonantLayer,
+          activeFacet: 'experience',
+          targetCameraPosition: target
+            ? [0, target.radius * 0.12, Math.max(target.radius * 1.8, 5)]
+            : null,
+        });
+      },
     }),
     {
       name: STORAGE_KEY,

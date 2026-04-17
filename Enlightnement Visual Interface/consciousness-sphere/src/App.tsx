@@ -10,6 +10,7 @@ import TransitionIndicator from './components/TransitionIndicator';
 import DepthIndicator from './components/DepthIndicator';
 import BottomBar from './components/BottomBar';
 import ChartPanel from './components/ChartPanel';
+import PresenceMode from './components/PresenceMode';
 import useExplorerStore from './stores/useExplorerStore';
 import { useBreakpoint } from './hooks/useBreakpoint';
 import './styles/globals.css';
@@ -20,12 +21,19 @@ function App() {
   const [showIntro, setShowIntro] = useState(
     () => localStorage.getItem(INTRO_KEY) !== 'true'
   );
-  const isTextMode = useExplorerStore((s) => s.isTextMode);
+  const isTextMode      = useExplorerStore((s) => s.isTextMode);
+  const enterPresence   = useExplorerStore((s) => s.enterPresenceMode);
   useBreakpoint();
 
   const handleEnter = () => {
     localStorage.setItem(INTRO_KEY, 'true');
     setShowIntro(false);
+  };
+
+  const handleEnterPresence = () => {
+    localStorage.setItem(INTRO_KEY, 'true');
+    setShowIntro(false);
+    enterPresence();
   };
 
   const sceneStyle = { width: '100%', height: '100%' };
@@ -61,7 +69,12 @@ function App() {
       )}
 
       <NavigationGuide />
-      <IntroOverlay visible={showIntro} onEnter={handleEnter} />
+      <IntroOverlay
+        visible={showIntro}
+        onEnter={handleEnter}
+        onEnterPresence={handleEnterPresence}
+      />
+      <PresenceMode />
     </div>
   );
 }

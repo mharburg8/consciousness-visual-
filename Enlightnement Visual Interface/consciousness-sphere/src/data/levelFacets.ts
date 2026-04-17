@@ -375,7 +375,7 @@ A new quality in your relationships: you meet people more as they are, rather th
 
   // ─── New Humanity ─────────────────────────────────────────────────────────
 
-  'Inner Light/Reason': {
+  'Inner Light / Reason': {
     experience: `Inner Light is clarity that cares. It is the intellect turned toward what is actually true, not what is convenient or comforting, not what confirms what was already believed. Understanding is its emotional quality — not cold, not detached, but genuinely illuminated. When you touch something real, there is warmth in it.
 
 From here, the view of life is meaningful. Not meaningful in the sense of having found a narrative that explains everything, but meaningful in the sense that inquiry itself feels worthwhile — that understanding matters, that truth can be pursued, that the mind is capable of genuine sight rather than only elaborate rationalization.
@@ -467,7 +467,7 @@ You find that you can receive love as well as give it — that the walls on the 
 
   // ─── 5th Dimension ────────────────────────────────────────────────────────
 
-  'Oneness/Joy': {
+  'Oneness / Joy': {
     experience: `Oneness is the collapse of the absolute sense of separation. Not the philosophical position that everything is connected — the direct experience in which the clear demarcation between "I" and "not-I" becomes permeable, then translucent, then sometimes barely there at all. You are still you — the body, the name, the specific view — but these feel more like the form that awareness takes in this location than like a fixed container that awareness lives inside.
 
 Serenity is its emotional quality: a settledness that can hold everything, that is not disturbed by the arising of what is difficult because it is deeper than what arises. Joy appears without occasion — the sheer fact of existence is enough to generate it. A bird, a phrase, the warmth of a hand — these are occasions for joy to arise, not causes of it. The joy was already there; the ordinary moment is simply what removes the temporary covering.
@@ -495,7 +495,7 @@ You are less disturbed by disturbance. The equanimity is not the absence of feel
 Compassion for others has become less effortful and more spontaneous. You find yourself moved by the simple human fact of people without needing to process or decide to be moved.`,
   },
 
-  'Presence/Peace': {
+  'Presence / Peace': {
     experience: `Peace at this depth is not a state that arrives when problems are solved — it is the ground underneath every state. The sky, not the weather. When you are in genuine contact with it, you recognize that it was never absent — only temporarily covered by the weight of what you were convinced was more real.
 
 Bliss is its emotional quality — not the bliss of pleasure or achievement, not the relief of suffering ending, but a quality intrinsic to awareness itself. Awareness, met directly, is blissful. This sounds mystical; it is actually ordinary. It is what remains when the demand that experience be different has gone quiet.

@@ -28,17 +28,17 @@ const LEVEL_GRADIENTS: Record<string, [string, string, boolean?]> = {
   'Neutrality':          ['#d4820a', '#b8a800'],
   'Willingness':         ['#b8a800', '#7aaa00'],
   'Acceptance':          ['#7aaa00', '#3a9900'],
-  'Inner Light/Reason':  ['#3a9900', '#008870'],
-  'Inner Wisdom':        ['#008870', '#007799'],
-  'Inner Love':          ['#007799', '#005599'],
-  'Oneness/Joy':         ['#005599', '#0033aa'],
-  'Presence/Peace':      ['#0033aa', '#2200aa'],
-  'Non-Duality':         ['#2200aa', '#5500aa'],
-  'Awareness':           ['#5500aa', '#7700bb'],
-  'The Great Void':      ['#7700bb', '#9900cc'],
-  'Divine Grace & Love': ['#9900cc', '#bb44dd', true],
-  'Supra Causal Truth':  ['#bb44dd', '#ddaaee', true],
-  'Full Consciousness':  ['#ddaaee', '#ffffff', true],
+  'Inner Light / Reason': ['#3a9900', '#008870'],
+  'Inner Wisdom':         ['#008870', '#007799'],
+  'Inner Love':           ['#007799', '#005599'],
+  'Oneness / Joy':        ['#005599', '#0033aa'],
+  'Presence / Peace':     ['#0033aa', '#2200aa'],
+  'Non-Duality':          ['#2200aa', '#5500aa'],
+  'Awareness':            ['#5500aa', '#7700bb'],
+  'The Great Void':       ['#7700bb', '#9900cc'],
+  'Divine Grace & Love':  ['#9900cc', '#bb44dd', true],
+  'Supra-Causal Truth':   ['#bb44dd', '#ddaaee', true],
+  'Full Consciousness':   ['#ddaaee', '#ffffff', true],
 };
 
 function midHex(a: string, b: string): string {
@@ -335,11 +335,21 @@ export default function ChartPanel() {
         )}
         {/* Click hint */}
         <div style={{
-          fontFamily: FONT_SANS, fontSize: '0.62rem',
-          letterSpacing: '0.1em', color: T_FAINT,
-          marginTop: '0.3rem', fontStyle: 'italic',
+          display: 'inline-flex', alignItems: 'center', gap: '0.45rem',
+          fontFamily: FONT_SANS, fontSize: '0.72rem',
+          fontWeight: 500, letterSpacing: '0.16em', textTransform: 'uppercase',
+          color: hexToRgba(c, 0.95),
+          marginTop: '0.55rem',
+          padding: '0.3rem 0.7rem',
+          border: `1px solid ${hexToRgba(c, 0.55)}`,
+          borderRadius: '999px',
+          background: hexToRgba(c, 0.14),
         }}>
-          tap a row to explore
+          <span style={{
+            width: 6, height: 6, borderRadius: '50%',
+            background: c, boxShadow: `0 0 8px ${c}`,
+          }} />
+          Tap a row to explore
         </div>
       </div>
 
@@ -465,13 +475,26 @@ export default function ChartPanel() {
                 onMouseLeave={(e) => (e.currentTarget.style.filter = 'none')}
               >
                 <div style={{
+                  display: 'flex', alignItems: 'baseline',
+                  justifyContent: 'space-between', gap: '0.75rem',
                   fontFamily: FONT_SER, fontSize: levelFont,
                   fontStyle: 'italic', fontWeight: 400,
                   color: ls.color, lineHeight: 1.2, marginBottom: '0.14rem',
                 }}>
-                  {entry.name}
-                  <span style={{ fontFamily: FONT_SANS, fontSize: '0.6rem', letterSpacing: '0.12em', marginLeft: '0.6rem', opacity: 0.5, fontStyle: 'normal' }}>
-                    explore →
+                  <span>{entry.name}</span>
+                  <span style={{
+                    fontFamily: FONT_SANS, fontSize: '0.64rem',
+                    letterSpacing: '0.14em', textTransform: 'uppercase',
+                    fontStyle: 'normal', fontWeight: 500,
+                    padding: '0.22rem 0.6rem',
+                    border: `1px solid ${ls.border}`,
+                    borderRadius: '2px',
+                    color: ls.color,
+                    opacity: 0.82,
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
+                  }}>
+                    View more →
                   </span>
                 </div>
                 <div style={{

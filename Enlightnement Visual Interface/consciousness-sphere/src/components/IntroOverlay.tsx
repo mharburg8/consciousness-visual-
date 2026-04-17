@@ -4,11 +4,12 @@ import { useBreakpoint } from '../hooks/useBreakpoint';
 interface Props {
   visible: boolean;
   onEnter: () => void;
+  onEnterPresence?: () => void;
 }
 
 const RING_SIZES = [600, 460, 340, 240, 160, 96];
 
-export default function IntroOverlay({ visible, onEnter }: Props) {
+export default function IntroOverlay({ visible, onEnter, onEnterPresence }: Props) {
   const bp = useBreakpoint();
   const isMobile = bp === 'mobile';
 
@@ -226,6 +227,43 @@ export default function IntroOverlay({ visible, onEnter }: Props) {
             >
               Enter
             </motion.button>
+
+            {onEnterPresence && (
+              <motion.button
+                onClick={onEnterPresence}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.8 }}
+                transition={{ delay: 1.6, duration: 1.0 }}
+                whileHover={{ opacity: 1 }}
+                whileTap={{ scale: 0.97 }}
+                style={{
+                  display: 'block',
+                  margin: '1.6rem auto 0',
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'rgba(232,228,223,0.6)',
+                  fontFamily: 'Cormorant Garamond, Georgia, serif',
+                  fontStyle: 'italic',
+                  fontSize: '0.95rem',
+                  letterSpacing: '0.02em',
+                  cursor: 'pointer',
+                  padding: '0.4rem 0.8rem',
+                  borderBottom: '1px solid rgba(201, 168, 124, 0.18)',
+                }}
+                onMouseEnter={(e) => {
+                  const el = e.currentTarget as HTMLButtonElement;
+                  el.style.color = '#f0e6d3';
+                  el.style.borderBottomColor = 'rgba(201, 168, 124, 0.55)';
+                }}
+                onMouseLeave={(e) => {
+                  const el = e.currentTarget as HTMLButtonElement;
+                  el.style.color = 'rgba(232,228,223,0.6)';
+                  el.style.borderBottomColor = 'rgba(201, 168, 124, 0.18)';
+                }}
+              >
+                or begin from where you are
+              </motion.button>
+            )}
           </motion.div>
         </motion.div>
       )}
