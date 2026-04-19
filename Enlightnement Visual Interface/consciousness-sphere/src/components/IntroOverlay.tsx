@@ -194,76 +194,146 @@ export default function IntroOverlay({ visible, onEnter, onEnterPresence }: Prop
               </motion.p>
             )}
 
-            <motion.button
-              onClick={onEnter}
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.96 }}
+            <div
               style={{
-                background: 'transparent',
-                border: '1px solid rgba(201, 168, 124, 0.35)',
-                borderRadius: '1px',
-                color: '#c9a87c',
-                fontFamily: 'DM Sans, system-ui, sans-serif',
-                fontSize: '0.78rem',
-                letterSpacing: '0.22em',
-                textTransform: 'uppercase',
-                padding: '0.85rem 3rem',
-                cursor: 'pointer',
-                position: 'relative',
-                overflow: 'hidden',
-              }}
-              onMouseEnter={(e) => {
-                const el = e.currentTarget as HTMLButtonElement;
-                el.style.borderColor = 'rgba(201, 168, 124, 0.75)';
-                el.style.color = '#f0e6d3';
-                el.style.boxShadow = '0 0 28px rgba(201, 168, 124, 0.18), inset 0 0 16px rgba(201, 168, 124, 0.06)';
-              }}
-              onMouseLeave={(e) => {
-                const el = e.currentTarget as HTMLButtonElement;
-                el.style.borderColor = 'rgba(201, 168, 124, 0.35)';
-                el.style.color = '#c9a87c';
-                el.style.boxShadow = 'none';
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '1.4rem',
               }}
             >
-              Enter
-            </motion.button>
+              {/* PRIMARY — Presence Mode (highlighted) */}
+              {onEnterPresence && (
+                <motion.button
+                  onClick={onEnterPresence}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.0, duration: 1.1 }}
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.96 }}
+                  style={{
+                    background:
+                      'linear-gradient(135deg, rgba(201,168,124,0.22) 0%, rgba(201,168,124,0.10) 100%)',
+                    border: '1px solid rgba(201, 168, 124, 0.85)',
+                    borderRadius: '2px',
+                    color: '#f7ecd4',
+                    fontFamily: 'DM Sans, system-ui, sans-serif',
+                    fontSize: '0.82rem',
+                    fontWeight: 500,
+                    letterSpacing: '0.26em',
+                    textTransform: 'uppercase',
+                    padding: '1rem 3.2rem',
+                    cursor: 'pointer',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    boxShadow:
+                      '0 0 34px rgba(201, 168, 124, 0.28), inset 0 0 22px rgba(201, 168, 124, 0.10)',
+                    transition: 'box-shadow 0.3s, background 0.3s',
+                  }}
+                  onMouseEnter={(e) => {
+                    const el = e.currentTarget as HTMLButtonElement;
+                    el.style.boxShadow =
+                      '0 0 48px rgba(201, 168, 124, 0.48), inset 0 0 28px rgba(201, 168, 124, 0.18)';
+                    el.style.background =
+                      'linear-gradient(135deg, rgba(201,168,124,0.32) 0%, rgba(201,168,124,0.16) 100%)';
+                  }}
+                  onMouseLeave={(e) => {
+                    const el = e.currentTarget as HTMLButtonElement;
+                    el.style.boxShadow =
+                      '0 0 34px rgba(201, 168, 124, 0.28), inset 0 0 22px rgba(201, 168, 124, 0.10)';
+                    el.style.background =
+                      'linear-gradient(135deg, rgba(201,168,124,0.22) 0%, rgba(201,168,124,0.10) 100%)';
+                  }}
+                >
+                  Presence Mode
+                </motion.button>
+              )}
 
-            {onEnterPresence && (
+              {onEnterPresence && (
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 0.75 }}
+                  transition={{ delay: 1.4, duration: 1.2 }}
+                  style={{
+                    fontFamily: 'Cormorant Garamond, Georgia, serif',
+                    fontStyle: 'italic',
+                    fontSize: '0.95rem',
+                    lineHeight: 1.5,
+                    color: 'rgba(232,228,223,0.75)',
+                    maxWidth: '360px',
+                    margin: '-0.6rem 0 0.4rem',
+                    letterSpacing: '0.01em',
+                  }}
+                >
+                  A guided meditation. Begin from where you are.
+                </motion.p>
+              )}
+
+              {/* Soft divider */}
+              <motion.div
+                initial={{ opacity: 0, scaleX: 0 }}
+                animate={{ opacity: 0.35, scaleX: 1 }}
+                transition={{ delay: 1.8, duration: 1.0 }}
+                style={{
+                  width: 160,
+                  height: 1,
+                  background:
+                    'linear-gradient(to right, transparent, rgba(201,168,124,0.5), transparent)',
+                }}
+              />
+
+              {/* SECONDARY — Explore (muted) */}
               <motion.button
-                onClick={onEnterPresence}
+                onClick={onEnter}
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 0.8 }}
-                transition={{ delay: 1.6, duration: 1.0 }}
-                whileHover={{ opacity: 1 }}
+                animate={{ opacity: 0.85 }}
+                transition={{ delay: 2.0, duration: 1.0 }}
+                whileHover={{ opacity: 1, scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
                 style={{
-                  display: 'block',
-                  margin: '1.6rem auto 0',
                   background: 'transparent',
-                  border: 'none',
-                  color: 'rgba(232,228,223,0.6)',
-                  fontFamily: 'Cormorant Garamond, Georgia, serif',
-                  fontStyle: 'italic',
-                  fontSize: '0.95rem',
-                  letterSpacing: '0.02em',
+                  border: '1px solid rgba(180, 174, 190, 0.22)',
+                  borderRadius: '1px',
+                  color: 'rgba(220,216,228,0.85)',
+                  fontFamily: 'DM Sans, system-ui, sans-serif',
+                  fontSize: '0.72rem',
+                  letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
+                  padding: '0.7rem 2.4rem',
                   cursor: 'pointer',
-                  padding: '0.4rem 0.8rem',
-                  borderBottom: '1px solid rgba(201, 168, 124, 0.18)',
                 }}
                 onMouseEnter={(e) => {
                   const el = e.currentTarget as HTMLButtonElement;
+                  el.style.borderColor = 'rgba(201, 168, 124, 0.45)';
                   el.style.color = '#f0e6d3';
-                  el.style.borderBottomColor = 'rgba(201, 168, 124, 0.55)';
                 }}
                 onMouseLeave={(e) => {
                   const el = e.currentTarget as HTMLButtonElement;
-                  el.style.color = 'rgba(232,228,223,0.6)';
-                  el.style.borderBottomColor = 'rgba(201, 168, 124, 0.18)';
+                  el.style.borderColor = 'rgba(180, 174, 190, 0.22)';
+                  el.style.color = 'rgba(220,216,228,0.85)';
                 }}
               >
-                or begin from where you are
+                Explore the Map
               </motion.button>
-            )}
+
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.55 }}
+                transition={{ delay: 2.3, duration: 1.0 }}
+                style={{
+                  fontFamily: 'Cormorant Garamond, Georgia, serif',
+                  fontStyle: 'italic',
+                  fontSize: '0.85rem',
+                  lineHeight: 1.4,
+                  color: 'rgba(180,174,190,0.7)',
+                  margin: '-0.9rem 0 0',
+                  letterSpacing: '0.01em',
+                }}
+              >
+                Browse all seven layers at your own pace.
+              </motion.p>
+            </div>
+
           </motion.div>
         </motion.div>
       )}

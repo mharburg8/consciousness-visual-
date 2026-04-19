@@ -1,10 +1,11 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import useExplorerStore from '../stores/useExplorerStore';
 import { presenceQuestions } from '../data/presenceQuestions';
 import { layers } from '../data/layers';
 
-const FADE = { duration: 1.1, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] };
+const FADE = { duration: 1.6, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] };
+const BREATH_SEC = 8;   // one inhale + exhale cycle
 
 export default function PresenceMode() {
   const mode             = useExplorerStore((s) => s.mode);
@@ -16,6 +17,21 @@ export default function PresenceMode() {
   const dissolve         = useExplorerStore((s) => s.dissolveFromPresence);
   const exit             = useExplorerStore((s) => s.exitPresenceMode);
 
+  // Opening "settle" frame — shown before the first question, for one full breath cycle.
+  const [hasSettled,  setHasSettled]  = useState(false);
+  // Brief held stillness after each selection before the next question appears.
+  const [isHolding,   setIsHolding]   = useState(false);
+  const holdTimer = useRef<number | null>(null);
+
+  // Reset local state when entering/leaving Presence Mode so a re-entry starts fresh.
+  useEffect(() => {
+    if (mode !== 'presence') {
+      setHasSettled(false);
+      setIsHolding(false);
+      if (holdTimer.current) { clearTimeout(holdTimer.current); holdTimer.current = null; }
+    }
+  }, [mode]);
+
   // Escape always exits presence mode.
   useEffect(() => {
     if (mode !== 'presence') return;
@@ -25,6 +41,16 @@ export default function PresenceMode() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [mode, exit]);
+
+  // Wrap answerQuestion with a brief stillness pause — lets the recognition land.
+  const handleAnswer = (layerHint: number) => {
+    setIsHolding(true);
+    holdTimer.current = window.setTimeout(() => {
+      answerQuestion(layerHint);
+      setIsHolding(false);
+      holdTimer.current = null;
+    }, 2200);
+  };
 
   const active = mode === 'presence';
   const currentQuestion =
@@ -70,21 +96,21 @@ export default function PresenceMode() {
             }}
           />
 
-          {/* Soft breathing halo — always present, sets the pace */}
+          {/* Soft breathing halo — matches the breath cadence, sets the pace */}
           <motion.div
             aria-hidden="true"
             animate={{
-              scale: [1, 1.06, 1],
-              opacity: [0.35, 0.55, 0.35],
+              scale: [1, 1.09, 1],
+              opacity: [0.35, 0.6, 0.35],
             }}
-            transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
+            transition={{ duration: BREATH_SEC, repeat: Infinity, ease: 'easeInOut' }}
             style={{
               position: 'absolute',
-              width: 520,
-              height: 520,
+              width: 640,
+              height: 640,
               borderRadius: '50%',
               background:
-                'radial-gradient(circle, rgba(201,168,124,0.08) 0%, rgba(201,168,124,0.02) 45%, transparent 70%)',
+                'radial-gradient(circle, rgba(201,168,124,0.10) 0%, rgba(201,168,124,0.03) 45%, transparent 70%)',
               pointerEvents: 'none',
             }}
           />
@@ -120,14 +146,114 @@ export default function PresenceMode() {
           </button>
 
           <AnimatePresence mode="wait">
+            {/* ── SETTLING FRAME ──────────────────────────────────────────
+                 Shown once before the first question. A moment to arrive. */}
+            {phase === 'questions' && !hasSettled && (
+              <motion.div
+                key="settle"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1.8, ease: [0.2, 0, 0.1, 1] }}
+                style={{
+                  position: 'relative',
+                  textAlign: 'center',
+                  maxWidth: '560px',
+                  width: '100%',
+                }}
+              >
+                <p
+                  style={{
+                    fontFamily: 'Cormorant Garamond, Georgia, serif',
+                    fontSize: 'clamp(1.45rem, 3.6vw, 2rem)',
+                    fontWeight: 300,
+                    fontStyle: 'italic',
+                    lineHeight: 1.5,
+                    color: 'rgba(240,236,230,0.9)',
+                    marginBottom: '1.6rem',
+                    letterSpacing: '0.01em',
+                  }}
+                >
+                  Take a breath.
+                  <br />
+                  Arrive here.
+                </p>
+
+                <p
+                  style={{
+                    fontFamily: 'DM Sans, system-ui, sans-serif',
+                    fontSize: '0.9rem',
+                    lineHeight: 1.8,
+                    color: 'rgba(180,174,190,0.75)',
+                    maxWidth: '440px',
+                    margin: '0 auto 3rem',
+                  }}
+                >
+                  There is nothing to answer quickly.
+                  <br />
+                  Let the day settle before we begin.
+                </p>
+
+                <motion.button
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 0.8 }}
+                  transition={{ delay: 4, duration: 2.4 }}
+                  whileHover={{ opacity: 1, scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => setHasSettled(true)}
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid rgba(201,168,124,0.35)',
+                    borderRadius: '1px',
+                    color: '#c9a87c',
+                    fontFamily: 'DM Sans, system-ui, sans-serif',
+                    fontSize: '0.72rem',
+                    letterSpacing: '0.24em',
+                    textTransform: 'uppercase',
+                    padding: '0.85rem 2.4rem',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Begin
+                </motion.button>
+              </motion.div>
+            )}
+
+            {/* ── HOLDING FRAME ───────────────────────────────────────────
+                 Brief stillness between questions. Halo continues alone. */}
+            {phase === 'questions' && hasSettled && isHolding && (
+              <motion.div
+                key="hold"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1.0 }}
+                style={{ position: 'relative', textAlign: 'center' }}
+              >
+                <motion.p
+                  animate={{ opacity: [0.4, 0.75, 0.4] }}
+                  transition={{ duration: BREATH_SEC, repeat: Infinity, ease: 'easeInOut' }}
+                  style={{
+                    fontFamily: 'Cormorant Garamond, Georgia, serif',
+                    fontSize: '1.1rem',
+                    fontStyle: 'italic',
+                    color: 'rgba(232,228,223,0.7)',
+                    letterSpacing: '0.04em',
+                  }}
+                >
+                  …let it land…
+                </motion.p>
+              </motion.div>
+            )}
+
             {/* ── QUESTIONS PHASE ───────────────────────────────────────── */}
-            {phase === 'questions' && currentQuestion && (
+            {phase === 'questions' && hasSettled && !isHolding && currentQuestion && (
               <motion.div
                 key={`q-${questionIndex}`}
                 initial={{ opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.9, ease: [0.2, 0, 0.1, 1] }}
+                transition={{ duration: 1.6, ease: [0.2, 0, 0.1, 1] }}
                 style={{
                   position: 'relative',
                   textAlign: 'center',
@@ -135,19 +261,6 @@ export default function PresenceMode() {
                   width: '100%',
                 }}
               >
-                <p
-                  style={{
-                    fontFamily: 'DM Sans, system-ui, sans-serif',
-                    fontSize: '0.66rem',
-                    letterSpacing: '0.32em',
-                    textTransform: 'uppercase',
-                    color: 'rgba(201,168,124,0.65)',
-                    marginBottom: '1.8rem',
-                  }}
-                >
-                  {questionIndex + 1} of {presenceQuestions.length}
-                </p>
-
                 <h2
                   style={{
                     fontFamily: 'Cormorant Garamond, Georgia, serif',
@@ -190,8 +303,8 @@ export default function PresenceMode() {
                       key={opt.text}
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.3 + i * 0.08, duration: 0.7 }}
-                      onClick={() => answerQuestion(opt.layer)}
+                      transition={{ delay: 0.8 + i * 0.32, duration: 1.4 }}
+                      onClick={() => handleAnswer(opt.layer)}
                       whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.99 }}
                       style={{
@@ -382,19 +495,61 @@ export default function PresenceMode() {
                   width: '100%',
                 }}
               >
-                <motion.div
-                  aria-hidden="true"
-                  animate={{ scale: [1, 1.18, 1] }}
-                  transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-                  style={{
-                    width: 200,
-                    height: 200,
-                    borderRadius: '50%',
-                    margin: '0 auto 2.4rem',
-                    background: `radial-gradient(circle, ${resonantLayerData.hexColor}bb 0%, ${resonantLayerData.hexColor}22 55%, transparent 82%)`,
-                    boxShadow: `0 0 90px 20px ${resonantLayerData.hexColor}22`,
-                  }}
-                />
+                <div style={{ position: 'relative', width: 200, height: 200, margin: '0 auto 2.4rem' }}>
+                  <motion.div
+                    aria-hidden="true"
+                    animate={{ scale: [1, 1.18, 1] }}
+                    transition={{ duration: BREATH_SEC, repeat: Infinity, ease: 'easeInOut' }}
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      borderRadius: '50%',
+                      background: `radial-gradient(circle, ${resonantLayerData.hexColor}bb 0%, ${resonantLayerData.hexColor}22 55%, transparent 82%)`,
+                      boxShadow: `0 0 90px 20px ${resonantLayerData.hexColor}22`,
+                    }}
+                  />
+                  {/* Breath label — fades between Inhale and Exhale on the orb's cycle */}
+                  <motion.span
+                    aria-hidden="true"
+                    animate={{ opacity: [0, 0.9, 0.9, 0, 0, 0] }}
+                    transition={{ duration: BREATH_SEC, repeat: Infinity, ease: 'easeInOut', times: [0, 0.18, 0.38, 0.5, 0.5, 1] }}
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontFamily: 'Cormorant Garamond, Georgia, serif',
+                      fontSize: '1.1rem',
+                      fontStyle: 'italic',
+                      letterSpacing: '0.08em',
+                      color: 'rgba(240,236,230,0.88)',
+                      pointerEvents: 'none',
+                    }}
+                  >
+                    Inhale
+                  </motion.span>
+                  <motion.span
+                    aria-hidden="true"
+                    animate={{ opacity: [0, 0, 0, 0, 0.9, 0] }}
+                    transition={{ duration: BREATH_SEC, repeat: Infinity, ease: 'easeInOut', times: [0, 0.5, 0.5, 0.62, 0.82, 1] }}
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontFamily: 'Cormorant Garamond, Georgia, serif',
+                      fontSize: '1.1rem',
+                      fontStyle: 'italic',
+                      letterSpacing: '0.08em',
+                      color: 'rgba(240,236,230,0.88)',
+                      pointerEvents: 'none',
+                    }}
+                  >
+                    Exhale
+                  </motion.span>
+                </div>
 
                 <p
                   style={{
@@ -407,7 +562,7 @@ export default function PresenceMode() {
                     maxWidth: '440px',
                   }}
                 >
-                  Breathe with this shape. In as it opens. Out as it softens.
+                  Breathe with the shape. In as it opens. Out as it softens.
                 </p>
 
                 <p
