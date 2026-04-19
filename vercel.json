@@ -1,0 +1,6 @@
+{
+  "buildCommand": "cd \"Enlightnement Visual Interface/consciousness-sphere\" && npm install && npm run build",
+  "outputDirectory": "Enlightnement Visual Interface/consciousness-sphere/dist",
+  "installCommand": "echo 'skip root install'",
+  "framework": null
+}
